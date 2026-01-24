@@ -19,7 +19,7 @@ export interface JiraIssue {
 /**
  * Transform feedback data to Jira issue format
  */
-export function transformToJiraIssue(
+function transformToJiraIssue(
   feedback: FeedbackData,
   config: JiraConfig
 ): JiraIssue {
@@ -138,7 +138,7 @@ async function uploadJiraAttachment(
 /**
  * Create Jira issue via REST API
  */
-export async function createJiraIssue(
+async function createJiraIssue(
   feedback: FeedbackData,
   config: JiraConfig
 ): Promise<{ issueId: string; issueKey: string; url: string }> {

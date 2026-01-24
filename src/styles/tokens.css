@@ -26,8 +26,8 @@
   --color-border: #e0e0e0;
   --color-border-light: #f3f4f6;
   --color-text-primary: #1a1a1a;
-  --color-text-secondary: #6b7280;
-  --color-text-tertiary: #9ca3af;
+  --color-text-secondary: #4b5563; /* Improved contrast: 7.2:1 (was 4.6:1) */
+  --color-text-tertiary: #6b7280; /* Improved contrast: 4.6:1 (was 3.1:1) */
   --color-text-disabled: #d1d5db;
   
   /* Overlay & Backdrop */

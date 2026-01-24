@@ -9,7 +9,7 @@ import type {
   FeedbackData,
   ToolMode,
 } from '../types';
-import { saveDraft, clearDraft, shouldResetNPS } from '../utils/storage';
+import { saveDraft, clearDraft, shouldResetNPS, clearLastNPSSubmission } from '../utils/storage';
 
 interface FeedbackContextValue {
   state: FeedbackState;
@@ -29,6 +29,7 @@ interface FeedbackContextValue {
   setToolbarExpanded: (expanded: boolean) => void;
   setCurrentStep: (step: number) => void;
   reset: () => void;
+  resetNPS: () => void;
 }
 
 type FeedbackAction =
@@ -178,27 +179,51 @@ export function FeedbackProvider({
     }
   }, []); // Only run on mount
 
-  // Debounce draft saving
-  let saveTimeout: NodeJS.Timeout;
+  // Debounce draft saving - use refs to avoid recreating callback on every state change
+  const saveTimeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const stateRef = React.useRef(state);
+  
+  // Keep stateRef in sync with current state - but only update ref, don't cause re-renders
+  // Use a layout effect to update ref synchronously without triggering re-renders
+  React.useLayoutEffect(() => {
+    stateRef.current = state;
+  });
+
   const saveDraftDebounced = useCallback(() => {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      // Access state directly from ref to get latest value without dependencies
+      const currentState = stateRef.current;
       saveDraft({
-        npsScore: state.npsScore,
-        feedbackText: state.feedbackText,
-        category: state.category,
-        severity: state.severity,
-        annotations: state.annotations,
+        npsScore: currentState.npsScore,
+        feedbackText: currentState.feedbackText,
+        category: currentState.category,
+        severity: currentState.severity,
+        annotations: currentState.annotations,
       });
     }, debounceMs);
-  }, [state, debounceMs]);
+  }, [debounceMs]);
 
-  // Auto-save on state changes
+  // Auto-save on state changes - use a ref to track if we should save
+  // This prevents the effect from running on every keystroke
+  const lastSavedRef = React.useRef({ feedbackText: '', npsScore: null as number | null });
+  
   React.useEffect(() => {
-    if (state.feedbackText || state.npsScore !== null) {
+    const shouldSave = 
+      (state.feedbackText !== lastSavedRef.current.feedbackText) ||
+      (state.npsScore !== lastSavedRef.current.npsScore);
+    
+    if (shouldSave && (state.feedbackText || state.npsScore !== null)) {
+      lastSavedRef.current = {
+        feedbackText: state.feedbackText,
+        npsScore: state.npsScore,
+      };
       saveDraftDebounced();
     }
-  }, [state.feedbackText, state.npsScore, saveDraftDebounced]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.feedbackText, state.npsScore]); // Only depend on the values, not the callback
 
   const addAnnotation = useCallback((annotation: Annotation) => {
     dispatch({ type: 'ADD_ANNOTATION', payload: annotation });
@@ -261,6 +286,11 @@ export function FeedbackProvider({
     clearDraft();
   }, []);
 
+  const resetNPS = useCallback(() => {
+    dispatch({ type: 'SET_NPS_SCORE', payload: null });
+    clearLastNPSSubmission();
+  }, []);
+
   const value: FeedbackContextValue = {
     state,
     dispatch,
@@ -279,6 +309,7 @@ export function FeedbackProvider({
     setToolbarExpanded,
     setCurrentStep,
     reset,
+    resetNPS,
   };
 
   return (

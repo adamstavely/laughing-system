@@ -7,7 +7,6 @@ import { useFeedback } from '../../context/FeedbackContext';
 import { validateFeedbackText } from '../../utils/validation';
 import styles from './FeedbackTextarea.module.css';
 
-const MIN_LENGTH = 10;
 const MAX_LENGTH = 5000;
 
 export function FeedbackTextarea() {
@@ -52,7 +51,13 @@ export function FeedbackTextarea() {
       />
       <div className={styles.footer}>
         {error && (
-          <span id="feedback-error" className={styles.errorText} role="alert">
+          <span 
+            id="feedback-error" 
+            className={styles.errorText} 
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
             {error}
           </span>
         )}

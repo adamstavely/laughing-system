@@ -23,6 +23,7 @@ export interface UseModalSubmissionOptions {
   screenshotQuality?: number;
   category: FeedbackData['category'];
   severity?: FeedbackData['severity'];
+  npsScore?: FeedbackData['npsScore'];
   npsSegment?: FeedbackData['npsSegment'];
   autoGenerateScreenshots?: boolean;
 }
@@ -38,6 +39,7 @@ export function useModalSubmission({
   screenshotQuality = 0.8,
   category,
   severity,
+  npsScore = 0,
   npsSegment = 'detractor',
   autoGenerateScreenshots = true,
 }: UseModalSubmissionOptions) {
@@ -122,7 +124,7 @@ export function useModalSubmission({
       const completeFeedback: FeedbackData = {
         id: `feedback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         timestamp: getTimestamp(),
-        npsScore: 0,
+        npsScore,
         npsSegment,
         category,
         severity,

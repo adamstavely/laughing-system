@@ -60,6 +60,11 @@
   transform: translateY(0);
 }
 
+.collapsedButton:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 .collapsedButton svg {
   color: #1a1a1a;
 }
@@ -230,6 +235,11 @@
   background: transparent;
 }
 
+.iconButton:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 .iconButton.active {
   background: #e8f4fd;
   color: #3b82f6;
@@ -266,6 +276,11 @@
 
 .iconButtonWithLabel:active {
   background: #e8e8e8;
+}
+
+.iconButtonWithLabel:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 .iconButtonWithLabel svg {
@@ -354,7 +369,7 @@
   color: white;
 }
 
-.npsButton:focus {
+.npsButton:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }

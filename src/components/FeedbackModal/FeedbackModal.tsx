@@ -2,19 +2,14 @@
  * Feedback Modal Component
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useFeedback } from '../../context/FeedbackContext';
 import { NPSRating } from './NPSRating';
 import { saveLastNPSSubmission, shouldResetNPS } from '../../utils/storage';
 import { AnnotationList } from './AnnotationList';
-import type { JiraConfig, ElasticConfig, FeedbackData } from '../../types';
-import { validateFeedbackData } from '../../utils/validation';
-import { captureContext, getTimestamp } from '../../utils/contextCapture';
-import { createJiraIssueWithRetry } from '../../integrations/jira';
-import { indexElasticsearchDocumentWithRetry } from '../../integrations/elasticsearch';
+import type { JiraConfig, ElasticConfig } from '../../types';
 import { calculateNPSSegment } from '../../utils/validation';
-import { generateAnnotationScreenshot } from '../../utils/screenshot';
-import { getErrorMessage } from '../../utils/configValidation';
+import { useModalSubmission } from '../../hooks/useModalSubmission';
 import { MessageSquare } from 'lucide-react';
 import styles from './FeedbackModal.module.css';
 
@@ -80,10 +75,33 @@ export function FeedbackModal({
     dispatch,
     setToolbarExpanded,
     setToolMode,
-    updateAnnotation,
   } = useFeedback();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const {
+    isSubmitting,
+    isSuccess,
+    errors,
+    isGeneratingScreenshots,
+    handleSubmit,
+    setErrors,
+    setIsSuccess,
+  } = useModalSubmission({
+    jiraConfig,
+    elasticConfig,
+    onSubmit,
+    onError,
+    getUserId,
+    appVersion,
+    customContext,
+    screenshotQuality,
+    category: state.category,
+    severity: state.severity,
+    npsScore: state.npsScore ?? 0,
+    npsSegment: calculateNPSSegment(state.npsScore ?? 0),
+    autoGenerateScreenshots: state.currentStep === 1,
+  });
 
   // Check if NPS should be reset when modal opens (90 days have passed)
   useEffect(() => {
@@ -95,8 +113,27 @@ export function FeedbackModal({
 
   // Focus trap and close toolbar when modal opens
   useEffect(() => {
+    if (!state.isModalOpen) return;
+
     previousFocusRef.current = document.activeElement as HTMLElement;
-    modalRef.current?.focus();
+    
+    // Get all focusable elements within the modal
+    const getFocusableElements = (): HTMLElement[] => {
+      if (!modalRef.current) return [];
+      
+      const selector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      return Array.from(modalRef.current.querySelectorAll<HTMLElement>(selector)).filter(
+        (el) => !el.hasAttribute('disabled') && !el.hasAttribute('aria-hidden')
+      );
+    };
+
+    // Focus first focusable element
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else {
+      modalRef.current?.focus();
+    }
     
     // Close toolbar when modal opens
     setToolbarExpanded(false);
@@ -104,6 +141,34 @@ export function FeedbackModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         handleClose();
+        return;
+      }
+
+      // Focus trap: Tab and Shift+Tab
+      if (e.key === 'Tab') {
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+
+        if (e.shiftKey) {
+          // Shift+Tab: move backwards
+          if (currentIndex <= 0 || document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: move forwards
+          if (currentIndex === focusableElements.length - 1 || document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
 
@@ -115,68 +180,15 @@ export function FeedbackModal({
       document.body.style.overflow = '';
       previousFocusRef.current?.focus();
     };
-  }, []);
+  }, [state.isModalOpen, handleClose, setToolbarExpanded]);
 
   const handleClose = () => {
     // TODO: Check for unsaved changes
     setModalOpen(false);
     setCurrentStep(1);
+    setErrors([]);
+    setIsSuccess(false);
   };
-
-  const handleBack = () => {
-    if (state.currentStep > 1) {
-      setCurrentStep(state.currentStep - 1);
-    }
-  };
-
-  const [stepErrors, setStepErrors] = useState<string[]>([]);
-  const [isGeneratingScreenshots, setIsGeneratingScreenshots] = useState(false);
-  const screenshotsGeneratedRef = useRef<Set<string>>(new Set());
-
-  // Generate screenshots when entering Step 1 (Review step) or when annotations are added
-  useEffect(() => {
-    if (state.currentStep === 1 && state.annotations.length > 0) {
-      const generateScreenshots = async () => {
-        const annotationsNeedingScreenshots = state.annotations.filter(
-          (annotation) => !annotation.screenshot && !screenshotsGeneratedRef.current.has(annotation.id)
-        );
-
-        if (annotationsNeedingScreenshots.length === 0) {
-          return; // All annotations already have screenshots or are being processed
-        }
-
-        setIsGeneratingScreenshots(true);
-        try {
-          // Generate screenshots for all annotations that don't have them
-          for (const annotation of annotationsNeedingScreenshots) {
-            screenshotsGeneratedRef.current.add(annotation.id);
-            try {
-              const screenshot = await generateAnnotationScreenshot(annotation, {
-                quality: screenshotQuality,
-                maxWidth: 1200,
-              });
-              updateAnnotation(annotation.id, { screenshot });
-            } catch (error) {
-              console.warn('Failed to generate screenshot for annotation:', error);
-              screenshotsGeneratedRef.current.delete(annotation.id);
-              // Continue without screenshot
-            }
-          }
-        } catch (error) {
-          console.error('Failed to generate screenshots:', error);
-        } finally {
-          setIsGeneratingScreenshots(false);
-        }
-      };
-
-      // Small delay to ensure DOM is ready
-      const timeoutId = setTimeout(generateScreenshots, 100);
-      return () => clearTimeout(timeoutId);
-    } else if (state.currentStep !== 1) {
-      // Reset when leaving step 1
-      screenshotsGeneratedRef.current.clear();
-    }
-  }, [state.currentStep, state.annotations, updateAnnotation, screenshotQuality]);
 
   const handleNext = () => {
     // Validate current step before proceeding
@@ -188,132 +200,37 @@ export function FeedbackModal({
     );
 
     if (!validation.valid) {
-      setStepErrors(validation.errors);
+      setErrors(validation.errors);
       return;
     }
 
-    setStepErrors([]);
+    setErrors([]);
     if (state.currentStep < TOTAL_STEPS) {
       setCurrentStep(state.currentStep + 1);
     }
   };
 
-  const handleSkip = () => {
-    // Skip NPS and go to next step
-    setStepErrors([]);
-    if (state.currentStep < TOTAL_STEPS) {
-      setCurrentStep(state.currentStep + 1);
-    }
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmitStep = async () => {
     // Validate before submit (Step 1: Review annotations)
     const validation = validateStep(1, state, requireCategory, enableNPS);
     if (!validation.valid) {
-      setStepErrors(validation.errors);
+      setErrors(validation.errors);
       return;
     }
 
-    setStepErrors([]);
-
-    // Set submitting state
-    dispatch({ type: 'SET_SUBMITTING', payload: true });
-
-    try {
-      // Generate screenshots for annotations that don't have them
-      const annotationsWithScreenshots = await Promise.all(
-        state.annotations.map(async (annotation) => {
-          if (annotation.screenshot) {
-            return annotation; // Already has screenshot
-          }
-
-          try {
-            const screenshot = await generateAnnotationScreenshot(annotation, {
-              quality: screenshotQuality,
-              maxWidth: 1200,
-            });
-            return {
-              ...annotation,
-              screenshot,
-            };
-          } catch (error) {
-            console.warn('Failed to generate screenshot for annotation:', error);
-            return annotation; // Continue without screenshot
-          }
-        })
-      );
-
-      // Build complete feedback data
-      const context = captureContext(
-        getUserId,
-        appVersion,
-        customContext
-      );
-
-      // NPS is optional - use 0 as default if not provided
-      const npsScore = state.npsScore ?? 0;
-      
-      const completeFeedback: FeedbackData = {
-        id: `feedback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        timestamp: getTimestamp(),
-        npsScore,
-        npsSegment: calculateNPSSegment(npsScore),
-        category: state.category,
-        severity: state.severity,
-        feedbackText: state.feedbackText || '', // Overall feedback is optional
-        annotations: annotationsWithScreenshots,
-        context,
-        contactPreference: state.contactPreference,
-      };
-
-      // Submit to integrations in parallel
-      const promises: Promise<any>[] = [];
-
-      if (jiraConfig) {
-        promises.push(
-          createJiraIssueWithRetry(completeFeedback, jiraConfig).catch(
-            (error) => {
-              console.error('Jira submission failed:', error);
-              throw error;
-            }
-          )
-        );
-      }
-
-      if (elasticConfig) {
-        promises.push(
-          indexElasticsearchDocumentWithRetry(completeFeedback, elasticConfig).catch(
-            (error) => {
-              console.error('Elasticsearch submission failed:', error);
-              throw error;
-            }
-          )
-        );
-      }
-
-      // Wait for all submissions
-      await Promise.allSettled(promises);
-
-      // Call optional onSubmit callback
-      onSubmit?.(completeFeedback);
-
-      // Move to NPS step (Step 2) after submission
-      if (enableNPS) {
-        setCurrentStep(2);
-      } else {
-        // Skip NPS and go directly to confirmation
-        setCurrentStep(3);
-      }
-    } catch (error) {
-      dispatch({ type: 'SET_SUBMITTING', payload: false });
-      const err = error instanceof Error ? error : new Error('Submission failed');
-      const userFriendlyMessage = getErrorMessage(err);
-      onError?.(err);
-      
-      // Show user-friendly error message inline
-      setStepErrors([`Failed to submit feedback: ${userFriendlyMessage}`]);
-    }
+    setErrors([]);
+    await handleSubmit(() => validation.errors);
   };
+
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    if (enableNPS) {
+      setCurrentStep(2);
+    } else {
+      setCurrentStep(3);
+    }
+  }, [isSuccess, enableNPS, setCurrentStep]);
 
   const progress = (state.currentStep / TOTAL_STEPS) * 100;
 
@@ -426,6 +343,8 @@ export function FeedbackModal({
                 className={styles.submitAnotherButton}
                 onClick={() => {
                   reset();
+                  setIsSuccess(false);
+                  setErrors([]);
                   setModalOpen(false);
                   setToolbarExpanded(true);
                   setToolMode('element');
@@ -438,9 +357,14 @@ export function FeedbackModal({
           )}
           
           {/* Error messages */}
-          {stepErrors.length > 0 && (
-            <div className={styles.errorContainer} role="alert">
-              {stepErrors.map((error, index) => (
+          {errors.length > 0 && (
+            <div 
+              className={styles.errorContainer} 
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+            >
+              {errors.map((error, index) => (
                 <div key={index} className={styles.errorMessage}>
                   {error}
                 </div>
@@ -455,11 +379,11 @@ export function FeedbackModal({
               <div className={styles.spacer} />
               <button
                 className={styles.buttonPrimary}
-                onClick={handleSubmit}
+                onClick={handleSubmitStep}
                 type="button"
-                disabled={state.isSubmitting || state.annotations.length === 0}
+                disabled={isSubmitting || state.annotations.length === 0}
               >
-                {state.isSubmitting ? 'Submitting...' : 'Submit'}
+                {isSubmitting ? 'Submitting...' : 'Submit'}
               </button>
             </>
           )}
@@ -482,6 +406,8 @@ export function FeedbackModal({
                 className={styles.buttonPrimary}
                 onClick={() => {
                   reset();
+                  setIsSuccess(false);
+                  setErrors([]);
                   setModalOpen(false);
                 }}
                 type="button"

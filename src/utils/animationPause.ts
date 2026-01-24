@@ -32,10 +32,3 @@ export function resumeAnimations(): void {
     style.remove();
   }
 }
-
-/**
- * Check if animations are currently paused
- */
-export function areAnimationsPaused(): boolean {
-  return document.documentElement.classList.contains(PAUSE_CLASS);
-}

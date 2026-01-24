@@ -26,13 +26,13 @@ import type { FeedbackComponentProps, Annotation } from '../types';
 import { pauseAnimations, resumeAnimations } from '../utils/animationPause';
 import { validateConfig } from '../utils/configValidation';
 import { validateCustomContext } from '../utils/customContext';
+import { resetNPSContext } from '../utils/storage';
 import '../styles/variables.css';
 import '../styles/reset.css';
 
 const FeedbackComponentInner = memo(function FeedbackComponentInner(props: FeedbackComponentProps) {
   const {
     enableAnnotations = true,
-    enableAnimationPause = true,
     position = 'bottom-right',
     theme = 'dark',
     accentColor,
@@ -41,11 +41,9 @@ const FeedbackComponentInner = memo(function FeedbackComponentInner(props: Feedb
     onSubmit,
     onError,
     onAnnotationCreate,
-    maxAnnotations = 10,
-    debounceMs = 500,
   } = props;
 
-  const { state, setModalOpen, setAnimationPaused, addAnnotation, setToolMode, clearAnnotations, setCategory } = useFeedback();
+  const { state, addAnnotation, setToolMode, setCategory } = useFeedback();
   const [quickFeedbackAnnotation, setQuickFeedbackAnnotation] = useState<Annotation | null>(null);
   const [showGeneralFeedbackModal, setShowGeneralFeedbackModal] = useState(false);
   const [pendingModal, setPendingModal] = useState<'bug' | 'feature' | 'general' | null>(null);
@@ -162,6 +160,33 @@ const FeedbackComponentInner = memo(function FeedbackComponentInner(props: Feedb
 
   return (
     <div className="feedback-component-container">
+      {/* Skip link for keyboard navigation */}
+      <a 
+        href="#feedback-main-content" 
+        className="feedback-skip-link"
+        style={{
+          position: 'absolute',
+          left: '-9999px',
+          zIndex: 99999,
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.left = 'auto';
+          e.currentTarget.style.top = '10px';
+          e.currentTarget.style.right = '10px';
+          e.currentTarget.style.padding = '8px 16px';
+          e.currentTarget.style.background = '#3b82f6';
+          e.currentTarget.style.color = 'white';
+          e.currentTarget.style.borderRadius = '4px';
+          e.currentTarget.style.textDecoration = 'none';
+          e.currentTarget.style.fontWeight = '500';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.left = '-9999px';
+        }}
+      >
+        Skip to main content
+      </a>
+      <div id="feedback-main-content" tabIndex={-1} style={{ outline: 'none' }} />
       <Toolbar
         position={position}
         onGeneralFeedbackClick={handleGeneralFeedbackClick}
@@ -235,7 +260,6 @@ const FeedbackComponentInner = memo(function FeedbackComponentInner(props: Feedb
       {enableAnnotations && (
         <AnnotationOverlay
           toolMode={state.toolMode}
-          maxAnnotations={maxAnnotations}
           onAnnotationCreate={handleAnnotationCreate}
           selectorPriority={props.selectorPriority}
         />
@@ -253,6 +277,18 @@ const FeedbackComponentInner = memo(function FeedbackComponentInner(props: Feedb
 });
 
 export function FeedbackComponent(props: FeedbackComponentProps) {
+  // Expose resetNPS function to window for easy browser console access
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).resetNPS = resetNPSContext;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).resetNPS;
+      }
+    };
+  }, []);
+
   // Validate configuration on mount
   useEffect(() => {
     const validation = validateConfig(props);

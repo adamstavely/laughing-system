@@ -39,7 +39,24 @@ export function BaseModal({
     if (!isOpen) return;
 
     previousFocusRef.current = document.activeElement as HTMLElement;
-    modalRef.current?.focus();
+    
+    // Get all focusable elements within the modal
+    const getFocusableElements = (): HTMLElement[] => {
+      if (!modalRef.current) return [];
+      
+      const selector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      return Array.from(modalRef.current.querySelectorAll<HTMLElement>(selector)).filter(
+        (el) => !el.hasAttribute('disabled') && !el.hasAttribute('aria-hidden')
+      );
+    };
+
+    // Focus first focusable element
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else {
+      modalRef.current?.focus();
+    }
 
     // Call onOpen callback if provided
     onOpen?.();
@@ -47,6 +64,34 @@ export function BaseModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+        return;
+      }
+
+      // Focus trap: Tab and Shift+Tab
+      if (e.key === 'Tab') {
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+
+        if (e.shiftKey) {
+          // Shift+Tab: move backwards
+          if (currentIndex <= 0 || document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: move forwards
+          if (currentIndex === focusableElements.length - 1 || document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
 

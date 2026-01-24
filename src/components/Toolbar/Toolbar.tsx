@@ -110,12 +110,12 @@ export function Toolbar({
               <button
                 className={styles.iconButtonWithLabel}
                 onClick={onGeneralFeedbackClick}
-                aria-label="General feedback"
+                aria-label="General Feedback"
                 type="button"
-                title="General feedback"
+                title="General Feedback"
               >
                 <MessageSquareText size={20} />
-                <span className={styles.iconLabel}>Provide General Feedback</span>
+                <span className={styles.iconLabel}>General Feedback</span>
               </button>
             )}
 
@@ -123,12 +123,12 @@ export function Toolbar({
             <button
               className={styles.iconButtonWithLabel}
               onClick={onBugReportClick}
-              aria-label="Report a bug"
+              aria-label="Bug Report"
               type="button"
-              title="Report a bug"
+              title="Bug Report"
             >
               <Bug size={20} />
-              <span className={styles.iconLabel}>Report a Bug</span>
+              <span className={styles.iconLabel}>Bug<br />Report</span>
             </button>
           )}
 
@@ -136,12 +136,12 @@ export function Toolbar({
             <button
               className={styles.iconButtonWithLabel}
               onClick={onFeatureRequestClick}
-              aria-label="Request a feature"
+              aria-label="Feature Request"
               type="button"
-              title="Request a feature"
+              title="Feature Request"
             >
               <Sparkles size={20} />
-              <span className={styles.iconLabel}>Request New Feature</span>
+              <span className={styles.iconLabel}>Feature Request</span>
             </button>
           )}
           </div>
@@ -166,7 +166,6 @@ export function Toolbar({
                       }`}
                       onClick={() => setNPSScore(i)}
                       aria-label={`Rate ${i} out of 10`}
-                      aria-pressed={state.npsScore === i}
                       type="button"
                       role="radio"
                       aria-checked={state.npsScore === i}

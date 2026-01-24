@@ -15,7 +15,6 @@ interface InlineFeedbackTooltipProps {
 }
 
 export function InlineFeedbackTooltip({
-  annotation,
   position,
   onClose,
   onSubmit,
@@ -59,9 +58,44 @@ export function InlineFeedbackTooltip({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+        return;
       }
       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
         handleSubmit();
+        return;
+      }
+
+      // Focus trap: Tab and Shift+Tab
+      if (e.key === 'Tab' && tooltipRef.current) {
+        const selector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const focusableElements = Array.from(
+          tooltipRef.current.querySelectorAll<HTMLElement>(selector)
+        ).filter(
+          (el) => !el.hasAttribute('disabled') && !el.hasAttribute('aria-hidden')
+        );
+
+        if (focusableElements.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+
+        if (e.shiftKey) {
+          // Shift+Tab: move backwards
+          if (currentIndex <= 0 || document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: move forwards
+          if (currentIndex === focusableElements.length - 1 || document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
 
@@ -73,7 +107,7 @@ export function InlineFeedbackTooltip({
       document.body.style.overflow = '';
       previousFocusRef.current?.focus();
     };
-  }, [position]);
+  }, [position, handleSubmit, onClose]);
 
   const handleSubmit = () => {
     if (feedback.trim()) {

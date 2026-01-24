@@ -7,7 +7,7 @@ import type { ElasticConfig, FeedbackData } from '../types';
 /**
  * Transform feedback data to Elasticsearch document format
  */
-export function transformToElasticsearchDocument(
+function transformToElasticsearchDocument(
   feedback: FeedbackData
 ): Record<string, any> {
   return {
@@ -124,7 +124,7 @@ async function ensureElasticsearchIndex(
 /**
  * Index document in Elasticsearch
  */
-export async function indexElasticsearchDocument(
+async function indexElasticsearchDocument(
   feedback: FeedbackData,
   config: ElasticConfig
 ): Promise<{ id: string; index: string }> {

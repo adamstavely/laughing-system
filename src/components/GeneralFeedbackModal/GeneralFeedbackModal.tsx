@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { useFeedback } from '../../context/FeedbackContext';
 import { AnnotationList } from '../FeedbackModal/AnnotationList';
+import { ControlledTextarea } from '../FeedbackModal/ControlledTextarea';
 import { BaseModal } from '../BaseModal';
 import { useModalSubmission } from '../../hooks/useModalSubmission';
 import type { JiraConfig, ElasticConfig, FeedbackData } from '../../types';
@@ -204,24 +205,21 @@ export function GeneralFeedbackModal({
           </div>
 
           {/* Feedback Text */}
-          <div className={sharedStyles.modalSection}>
-            <label className={sharedStyles.modalLabel} htmlFor="general-feedback-text">
-              Your Feedback <span className={sharedStyles.modalLabelRequired}>*</span>
-            </label>
-            <textarea
-              id="general-feedback-text"
-              className={sharedStyles.modalTextarea}
-              value={state.feedbackText || ''}
-              onChange={(e) => setFeedbackText(e.target.value)}
-              placeholder="Share your thoughts, questions, or feedback..."
-              rows={6}
-              maxLength={5000}
-              required
-            />
-            <div className={sharedStyles.modalCharCount}>
-              {5000 - (state.feedbackText?.length || 0)} characters remaining
-            </div>
-          </div>
+          <ControlledTextarea
+            id="general-feedback-text"
+            value={state.feedbackText || ''}
+            onChange={setFeedbackText}
+            label={
+              <>
+                Your Feedback <span className={sharedStyles.modalLabelRequired}>*</span>
+              </>
+            }
+            placeholder="Share your thoughts, questions, or feedback..."
+            rows={6}
+            maxLength={5000}
+            required
+            showCharCount={true}
+          />
 
           {/* Follow-up Preference */}
           <div className={sharedStyles.modalSection}>
@@ -238,7 +236,12 @@ export function GeneralFeedbackModal({
 
           {/* Error messages */}
           {errors.length > 0 && (
-            <div className={sharedStyles.modalErrorContainer} role="alert">
+            <div 
+              className={sharedStyles.modalErrorContainer} 
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+            >
               {errors.map((error, index) => (
                 <div key={index} className={sharedStyles.modalErrorMessage}>
                   {error}

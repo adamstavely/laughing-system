@@ -44,7 +44,6 @@ export function NPSRating({ onNext, onSkip }: NPSRatingProps) {
                 }`}
                 onClick={() => handleScoreClick(i)}
                 aria-label={`Rate ${i} out of 10`}
-                aria-pressed={npsScore === i}
                 type="button"
                 role="radio"
                 aria-checked={npsScore === i}

@@ -12,14 +12,12 @@ import type { ToolMode } from '../../types';
 
 interface AnnotationOverlayProps {
   toolMode: ToolMode;
-  maxAnnotations: number;
   onAnnotationCreate?: (annotation: any) => void;
   selectorPriority?: string[];
 }
 
 export function AnnotationOverlay({
   toolMode,
-  maxAnnotations,
   onAnnotationCreate,
   selectorPriority,
 }: AnnotationOverlayProps) {
@@ -29,7 +27,6 @@ export function AnnotationOverlay({
   // This enables selection, but we still render highlights when toolMode is 'none'
   useSmartSelector({
     enabled: toolMode !== 'none',
-    maxAnnotations,
     onAnnotationCreate: (annotation) => {
       onAnnotationCreate?.(annotation);
     },

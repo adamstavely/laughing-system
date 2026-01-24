@@ -203,6 +203,11 @@
   color: var(--modal-text-primary);
 }
 
+.modalButtonCancel:focus-visible {
+  outline: 2px solid var(--color-primary-border);
+  outline-offset: 2px;
+}
+
 .modalButtonPrimary {
   padding: 10px 20px;
   background: var(--color-primary);
@@ -228,6 +233,12 @@
   cursor: not-allowed;
 }
 
+.modalButtonPrimary:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus), 0 0 0 2px var(--color-primary);
+}
+
 .modalErrorContainer {
   margin-top: var(--spacing-4);
   padding: var(--spacing-3);
@@ -250,12 +261,18 @@
 .modalSuccessMessage {
   text-align: center;
   padding: var(--spacing-xl) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .modalSuccessIcon {
   width: 64px;
   height: 64px;
-  margin: 0 auto var(--spacing-lg);
+  margin: 0 auto var(--spacing-lg) auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -264,6 +281,7 @@
   border-radius: 50%;
   font-size: 32px;
   font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
 }
 
 .modalSuccessMessage h3 {

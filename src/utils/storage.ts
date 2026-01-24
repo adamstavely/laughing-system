@@ -116,3 +116,28 @@ export function clearLastNPSSubmission(): void {
     console.warn('Failed to clear last NPS submission:', error);
   }
 }
+
+/**
+ * Reset NPS context - clears both the stored timestamp and sessionStorage draft
+ * This will cause the NPS prompt to appear again
+ * Can be called from browser console: window.resetNPS?.()
+ */
+export function resetNPSContext(): void {
+  try {
+    // Clear the last submission timestamp
+    localStorage.removeItem(NPS_SUBMISSION_KEY);
+    
+    // Clear the NPS score from sessionStorage draft
+    const draft = loadDraft();
+    if (draft.npsScore !== undefined) {
+      saveDraft({
+        ...draft,
+        npsScore: null,
+      });
+    }
+    
+    console.log('NPS context reset successfully. The NPS prompt will appear on next modal open.');
+  } catch (error) {
+    console.warn('Failed to reset NPS context:', error);
+  }
+}

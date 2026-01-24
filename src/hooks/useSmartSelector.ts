@@ -16,14 +16,12 @@ import type { Annotation } from '../types';
 
 interface UseSmartSelectorProps {
   enabled: boolean;
-  maxAnnotations: number;
   onAnnotationCreate: (annotation: Annotation) => void;
   selectorPriority?: string[];
 }
 
 export function useSmartSelector({
   enabled,
-  maxAnnotations,
   onAnnotationCreate,
   selectorPriority,
 }: UseSmartSelectorProps) {

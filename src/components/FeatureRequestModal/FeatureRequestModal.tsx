@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { useFeedback } from '../../context/FeedbackContext';
 import { AnnotationList } from '../FeedbackModal/AnnotationList';
+import { ControlledTextarea } from '../FeedbackModal/ControlledTextarea';
 import { BaseModal } from '../BaseModal';
 import { useModalSubmission } from '../../hooks/useModalSubmission';
 import type { JiraConfig, ElasticConfig, FeedbackData } from '../../types';
@@ -109,7 +110,7 @@ export function FeatureRequestModal({
     <BaseModal
       isOpen={true}
       onClose={onClose}
-      title="Request a Feature"
+      title="Feature Request"
       icon={<Sparkles size={20} />}
       ariaLabelledBy="feature-request-title"
       footer={
@@ -182,23 +183,15 @@ export function FeatureRequestModal({
           </div>
 
           {/* Additional Details */}
-          <div className={sharedStyles.modalSection}>
-            <label className={sharedStyles.modalLabel} htmlFor="feature-additional-details">
-              Additional Details (optional)
-            </label>
-            <textarea
-              id="feature-additional-details"
-              className={sharedStyles.modalTextarea}
-              value={state.feedbackText || ''}
-              onChange={(e) => setFeedbackText(e.target.value)}
-              placeholder="Describe the feature you'd like to see, use cases, benefits..."
-              rows={4}
-              maxLength={5000}
-            />
-            <div className={sharedStyles.modalCharCount}>
-              {5000 - (state.feedbackText?.length || 0)} characters remaining
-            </div>
-          </div>
+          <ControlledTextarea
+            id="feature-additional-details"
+            value={state.feedbackText || ''}
+            onChange={setFeedbackText}
+            label="Additional Details (optional)"
+            placeholder="Describe the feature you'd like to see, use cases, benefits..."
+            rows={4}
+            maxLength={5000}
+          />
 
           {/* Follow-up Preference */}
           <div className={sharedStyles.modalSection}>
@@ -215,7 +208,12 @@ export function FeatureRequestModal({
 
           {/* Error messages */}
           {errors.length > 0 && (
-            <div className={sharedStyles.modalErrorContainer} role="alert">
+            <div 
+              className={sharedStyles.modalErrorContainer} 
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+            >
               {errors.map((error, index) => (
                 <div key={index} className={sharedStyles.modalErrorMessage}>
                   {error}
