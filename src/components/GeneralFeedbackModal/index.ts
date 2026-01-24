@@ -1,0 +1,1 @@
+export { GeneralFeedbackModal } from './GeneralFeedbackModal';

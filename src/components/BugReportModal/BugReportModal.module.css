@@ -1,0 +1,142 @@
+/**
+ * BugReportModal Component-Specific Styles
+ * Most modal styles are now in modal.shared.css via BaseModal
+ */
+
+/* Severity Selector - Light theme for modals */
+.severityButtons {
+  display: flex;
+  gap: 12px; /* Adequate spacing between buttons */
+  flex-wrap: wrap;
+}
+
+.severityButton {
+  padding: 10px 20px; /* Generous padding around text */
+  border: 1px solid #e0e0e0; /* Light theme border */
+  border-radius: 8px; /* Rounded corners */
+  background: #ffffff; /* Light theme background */
+  color: #1a1a1a; /* Light theme text */
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-all);
+  min-height: 40px; /* Ensure consistent button height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.severityButton:hover {
+  background: #f5f5f5; /* Light theme hover */
+  border-color: #d0d0d0; /* Light theme border hover */
+}
+
+.severityButton.selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* Checkbox - Light theme for modals */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: #1a1a1a; /* Light theme text */
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+/* Screenshot Loading - Light theme for modals */
+.screenshotLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  gap: var(--spacing-sm);
+  color: #6b7280; /* Light theme secondary text */
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #f3f4f6; /* Light theme border */
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Empty Annotations State - Light theme for modals */
+.emptyAnnotations {
+  padding: var(--spacing-6);
+  text-align: center;
+  background: #f3f4f6; /* Light theme background */
+  border: 1px dashed #e0e0e0; /* Light theme border */
+  border-radius: var(--radius-md);
+  color: #6b7280; /* Light theme secondary text */
+}
+
+.emptyAnnotations p {
+  margin: 0 0 var(--spacing-3) 0;
+  font-size: var(--font-size-sm);
+}
+
+/* Add Annotation Buttons */
+.addAnnotationButton {
+  padding: 10px 20px; /* Generous padding around text */
+  background: var(--color-primary);
+  border: none;
+  border-radius: 8px; /* Rounded corners */
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-all);
+  min-height: 40px; /* Ensure consistent button height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addAnnotationButton:hover {
+  background: var(--color-primary-hover);
+}
+
+.addAnotherButton {
+  margin-top: 24px; /* Adequate spacing above button to prevent overlap */
+  padding: 10px 20px; /* Generous padding around text */
+  background: transparent;
+  border: 1px solid #e0e0e0; /* Light theme border */
+  border-radius: 8px; /* Rounded corners */
+  color: #6b7280; /* Light theme secondary text */
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-all);
+  min-height: 40px; /* Ensure consistent button height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addAnotherButton:hover {
+  background: #f5f5f5; /* Light theme hover */
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}

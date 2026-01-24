@@ -1,0 +1,59 @@
+/**
+ * Legacy CSS Variables - Backward Compatibility Layer
+ * This file imports the new design token system and provides
+ * legacy variable mappings for backward compatibility during migration.
+ * 
+ * New code should use tokens.css directly.
+ */
+
+@import './tokens.css';
+
+/* Legacy variable mappings for backward compatibility */
+:root {
+  --feedback-primary: var(--color-primary);
+  --feedback-primary-hover: var(--color-primary-hover);
+  --feedback-primary-active: var(--color-primary-active);
+  --feedback-accent: var(--color-primary);
+  --feedback-background: var(--color-background);
+  --feedback-surface: var(--color-surface);
+  --feedback-border: var(--color-border);
+  --feedback-text: var(--color-text-primary);
+  --feedback-text-secondary: var(--color-text-secondary);
+  --feedback-error: var(--color-error);
+  --feedback-success: var(--color-success);
+  --feedback-warning: var(--color-warning);
+  --annotation-highlight: var(--color-annotation-highlight);
+  --annotation-overlay: var(--color-annotation-overlay);
+  --spacing-xs: var(--spacing-xs);
+  --spacing-sm: var(--spacing-sm);
+  --spacing-md: var(--spacing-md);
+  --spacing-lg: var(--spacing-lg);
+  --spacing-xl: var(--spacing-xl);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-lg);
+  --z-toolbar: var(--z-toolbar);
+  --z-overlay: var(--z-overlay);
+  --z-modal: var(--z-modal);
+  --transition-fast: var(--transition-fast);
+  --transition-base: var(--transition-base);
+  --transition-slow: var(--transition-slow);
+}
+
+/* Dark theme - now handled by tokens.css */
+[data-theme='dark'],
+.feedback-component-dark {
+  /* All dark theme overrides are now in tokens.css */
+}
+
+/* Auto theme detection - now handled by tokens.css */
+@media (prefers-color-scheme: dark) {
+  [data-theme='auto'] {
+    /* All auto theme overrides are now in tokens.css */
+  }
+}

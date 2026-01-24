@@ -1,0 +1,290 @@
+/**
+ * Shared Modal Styles
+ * Import this in all modal components to eliminate duplication
+ * 
+ * Note: Modals always use light theme for better readability
+ * This is enforced via modal-specific CSS variables that override global theme
+ */
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-backdrop);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal-backdrop);
+  padding: var(--spacing-md);
+  pointer-events: none;
+}
+
+.modalBackdrop[data-clickable="true"] {
+  pointer-events: auto;
+}
+
+/* Modal container with forced light theme */
+.modalContainer {
+  /* Force light theme variables for modals */
+  --modal-bg: #ffffff;
+  --modal-surface: #ffffff;
+  --modal-surface-hover: #f5f5f5;
+  --modal-border: #e0e0e0;
+  --modal-text-primary: #1a1a1a;
+  --modal-text-secondary: #6b7280;
+  --modal-text-tertiary: #9ca3af;
+  
+  pointer-events: auto;
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--modal-text-primary);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-5) var(--spacing-6);
+  padding-right: 56px; /* Room for close button */
+  border-bottom: 1px solid var(--modal-border);
+  position: relative;
+  background: var(--modal-bg);
+}
+
+.modalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex: 1;
+}
+
+.modalHeaderIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--modal-text-primary);
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--modal-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: var(--transition-all);
+}
+
+.modalCloseButton:hover {
+  background: var(--modal-surface-hover);
+  color: var(--modal-text-primary);
+}
+
+.modalCloseButton:focus {
+  outline: 2px solid var(--color-primary-border);
+  outline-offset: 2px;
+}
+
+.modalContent {
+  flex: 1;
+  padding: var(--spacing-6);
+  overflow-y: auto;
+  background: var(--modal-bg);
+}
+
+.modalSection {
+  margin-bottom: var(--spacing-6);
+}
+
+.modalSection:last-child {
+  margin-bottom: 0;
+}
+
+.modalLabel {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--modal-text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.modalLabelRequired {
+  color: var(--color-error);
+}
+
+.modalHelpText {
+  font-size: var(--font-size-sm);
+  color: var(--modal-text-secondary);
+  margin: 0 0 var(--spacing-3) 0;
+}
+
+.modalTextarea {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: 1px solid var(--modal-border);
+  border-radius: var(--radius-md);
+  background: var(--modal-bg);
+  color: var(--modal-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  resize: vertical;
+  transition: var(--transition-all);
+  box-sizing: border-box;
+}
+
+.modalTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.modalTextarea::placeholder {
+  color: var(--modal-text-tertiary);
+}
+
+.modalCharCount {
+  margin-top: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  color: var(--modal-text-secondary);
+  text-align: right;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--spacing-5) var(--spacing-6);
+  border-top: 1px solid var(--modal-border);
+  gap: var(--spacing-3);
+  background: var(--modal-bg);
+}
+
+.modalButtonCancel {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--modal-border);
+  border-radius: 8px; /* Rounded corners */
+  color: var(--modal-text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: var(--transition-all);
+  min-height: 40px; /* Ensure consistent button height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalButtonCancel:hover {
+  background: var(--modal-surface-hover);
+  color: var(--modal-text-primary);
+}
+
+.modalButtonPrimary {
+  padding: 10px 20px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 8px; /* Rounded corners */
+  color: white;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: var(--transition-all);
+  min-height: 40px; /* Ensure consistent button height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalButtonPrimary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.modalButtonPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modalErrorContainer {
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-3);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+}
+
+.modalErrorMessage {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+.modalErrorMessage:not(:last-child) {
+  margin-bottom: var(--spacing-2);
+}
+
+.modalSuccessMessage {
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+}
+
+.modalSuccessIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-success);
+  color: white;
+  border-radius: 50%;
+  font-size: 32px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.modalSuccessMessage h3 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: var(--font-size-xl);
+  color: var(--modal-text-primary);
+}
+
+.modalSuccessMessage p {
+  margin: 0;
+  color: var(--modal-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .modalContainer {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modalBackdrop {
+    padding: 0;
+  }
+}

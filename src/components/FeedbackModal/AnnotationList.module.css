@@ -1,0 +1,266 @@
+/* AnnotationList - Always light theme for modals */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  /* Force light theme */
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1a1a !important; /* Force light theme text */
+}
+
+.empty {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: #6b7280 !important; /* Force light theme secondary text */
+  background: #ffffff;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-height: 400px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.item {
+  padding: var(--spacing-md);
+  border: 1px solid #e0e0e0 !important; /* Force light theme border */
+  border-radius: 8px;
+  background: #ffffff !important; /* Force light theme background */
+  color: #1a1a1a !important; /* Force light theme text */
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Adequate spacing between badge and type label */
+  margin-bottom: var(--spacing-sm);
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--feedback-accent);
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.type {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #6b7280 !important; /* Force light theme secondary text */
+  text-transform: capitalize;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.editButton {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none;
+  color: #6b7280 !important; /* Force light theme secondary text */
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.editButton:hover {
+  background: #f5f5f5 !important; /* Force light theme hover */
+  color: #3b82f6 !important;
+}
+
+.removeButton {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none;
+  color: #6b7280 !important; /* Force light theme secondary text */
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.removeButton:hover {
+  background: #f5f5f5 !important; /* Force light theme hover */
+  color: #dc2626 !important;
+}
+
+.selector {
+  margin-top: var(--spacing-xs);
+  padding: 6px 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #1a1a1a;
+}
+
+.selector code {
+  color: #3b82f6;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.textContent {
+  margin-top: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: #4a4a4a !important; /* Force light theme text */
+  font-style: italic;
+}
+
+.feedbackSection {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid #f0f0f0;
+}
+
+.feedbackText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feedbackLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.feedbackContent {
+  font-size: 0.875rem;
+  color: #1a1a1a !important; /* Force light theme text */
+  line-height: 1.5;
+  padding: 8px;
+  background: #f9fafb !important; /* Force light theme background */
+  border-radius: 6px;
+  border: 1px solid #e5e7eb !important; /* Force light theme border */
+}
+
+.noFeedback {
+  font-size: 0.875rem;
+  color: #9ca3af !important; /* Force light theme tertiary text */
+  font-style: italic;
+  padding: 8px;
+  background: #f9fafb !important; /* Force light theme background */
+  border-radius: 6px;
+  border: 1px dashed #e5e7eb !important; /* Force light theme border */
+}
+
+.editContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editTextarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0 !important; /* Force light theme border */
+  border-radius: 6px;
+  background: #ffffff !important; /* Force light theme background */
+  color: #1a1a1a !important; /* Force light theme text */
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.editTextarea:focus {
+  outline: none;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editTextarea::placeholder {
+  color: #9ca3af !important; /* Force light theme placeholder */
+}
+
+.editActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 20px; /* Generous padding around text */
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px; /* Rounded corners */
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 40px; /* Ensure consistent button height */
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelEditButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 20px; /* Generous padding around text */
+  background: transparent !important;
+  border: 1px solid #e0e0e0 !important; /* Force light theme border */
+  border-radius: 8px; /* Rounded corners */
+  color: #6b7280 !important; /* Force light theme secondary text */
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 40px; /* Ensure consistent button height */
+}
+
+.cancelEditButton:hover {
+  background: #f5f5f5 !important; /* Force light theme hover */
+  border-color: #d0d0d0 !important;
+}
+
+.screenshot {
+  margin-top: var(--spacing-sm);
+  padding: 8px;
+  background: #f5f5f5 !important; /* Force light theme background */
+  border-radius: 6px;
+  border: 1px solid #e0e0e0 !important; /* Force light theme border */
+}

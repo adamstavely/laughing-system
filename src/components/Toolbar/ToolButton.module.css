@@ -1,0 +1,55 @@
+.toolButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: 1px solid var(--feedback-border);
+  border-radius: var(--radius-md);
+  color: var(--feedback-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 80px;
+}
+
+.toolButton:hover {
+  background: var(--feedback-surface);
+  border-color: var(--feedback-accent);
+}
+
+.toolButton:focus {
+  outline: 2px solid var(--feedback-accent);
+  outline-offset: 2px;
+}
+
+.toolButton.active {
+  background: var(--feedback-accent);
+  border-color: var(--feedback-accent);
+  color: white;
+}
+
+.toolButton.active:hover {
+  background: var(--feedback-primary-hover);
+}
+
+.toolButton svg {
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .toolButton {
+    min-width: 60px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .label {
+    font-size: 0.625rem;
+  }
+}

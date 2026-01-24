@@ -1,0 +1,18 @@
+/**
+ * Reset styles for feedback component
+ */
+
+.feedback-component-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+
+.feedback-component-container *,
+.feedback-component-container *::before,
+.feedback-component-container *::after {
+  box-sizing: border-box;
+}
