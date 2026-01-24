@@ -37,6 +37,10 @@
   --modal-text-secondary: #4b5563;
   --modal-text-tertiary: #6b7280;
   
+  /* Ensure radius tokens are available */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  
   pointer-events: auto;
   background: var(--modal-bg);
   border: 1px solid var(--modal-border);
@@ -188,7 +192,7 @@
   padding: var(--spacing-2) var(--spacing-5);
   background: transparent;
   border: 1px solid var(--modal-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 0.5rem); /* 8px - rounded corners */
   color: var(--modal-text-secondary);
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
@@ -214,8 +218,8 @@
   padding: var(--spacing-2) var(--spacing-5);
   background: var(--color-primary);
   border: none;
-  border-radius: var(--radius-md);
-  color: var(--color-background);
+  border-radius: var(--radius-md, 0.5rem); /* 8px - rounded corners */
+  color: #ffffff; /* White text for contrast on primary background */
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
   cursor: pointer;

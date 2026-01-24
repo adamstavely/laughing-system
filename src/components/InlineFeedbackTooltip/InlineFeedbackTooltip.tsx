@@ -3,7 +3,7 @@
  * Appears near the annotation for less intrusive feedback collection
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { Annotation } from '../../types';
 import styles from './InlineFeedbackTooltip.module.css';
 
@@ -24,6 +24,13 @@ export function InlineFeedbackTooltip({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const handleSubmit = useCallback(() => {
+    if (feedback.trim()) {
+      onSubmit(feedback.trim());
+      onClose();
+    }
+  }, [feedback, onSubmit, onClose]);
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement as HTMLElement;
@@ -108,13 +115,6 @@ export function InlineFeedbackTooltip({
       previousFocusRef.current?.focus();
     };
   }, [position, handleSubmit, onClose]);
-
-  const handleSubmit = () => {
-    if (feedback.trim()) {
-      onSubmit(feedback.trim());
-      onClose();
-    }
-  };
 
   const handleCancel = () => {
     onClose();

@@ -63,7 +63,8 @@ export function useModalSubmission({
         return;
       }
 
-      setIsGeneratingScreenshots(true);
+      // Generate screenshots without showing loading indicator
+      // Screenshot utility will hide modals during capture to prevent them appearing in screenshots
       try {
         for (const annotation of annotationsNeedingScreenshots) {
           screenshotsGeneratedRef.current.add(annotation.id);
@@ -80,8 +81,6 @@ export function useModalSubmission({
         }
       } catch (error) {
         console.error('Failed to generate screenshots:', error);
-      } finally {
-        setIsGeneratingScreenshots(false);
       }
     };
 

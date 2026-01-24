@@ -175,8 +175,8 @@ export function Toolbar({
                   ))}
                 </div>
                 <div className={styles.npsLabels}>
-                  <span>Not likely</span>
-                  <span>Very likely</span>
+                  <span>Not Satisfied</span>
+                  <span>Very Satisfied</span>
                 </div>
               </>
             )}

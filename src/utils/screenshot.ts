@@ -68,6 +68,17 @@ export async function generateScreenshot(
     targetElement = document.body;
   }
 
+  // Hide modals and loading indicators during screenshot capture
+  const modals = document.querySelectorAll('[role="dialog"], .modalBackdrop, .backdrop, [class*="modal"], [class*="Modal"]');
+  const hiddenModals: Array<{ element: Element; originalDisplay: string }> = [];
+  
+  modals.forEach((modal) => {
+    const htmlElement = modal as HTMLElement;
+    const originalDisplay = htmlElement.style.display;
+    htmlElement.style.display = 'none';
+    hiddenModals.push({ element: modal, originalDisplay });
+  });
+
   try {
     const canvas = await html2canvas(targetElement, {
       useCORS: true,
@@ -75,6 +86,18 @@ export async function generateScreenshot(
       scale: 1,
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight,
+      ignoreElements: (element) => {
+        // Exclude modals, loading indicators, and feedback component UI
+        return (
+          element.closest('[role="dialog"]') !== null ||
+          element.closest('.modalBackdrop') !== null ||
+          element.closest('.backdrop') !== null ||
+          element.closest('.feedback-component-container') !== null ||
+          element.classList.contains('screenshotLoading') ||
+          element.classList.contains('modal') ||
+          element.getAttribute('aria-modal') === 'true'
+        );
+      },
     });
 
     // Crop if needed
@@ -119,6 +142,12 @@ export async function generateScreenshot(
   } catch (error) {
     console.error('Failed to generate screenshot:', error);
     throw new Error('Screenshot generation failed');
+  } finally {
+    // Restore modal visibility
+    hiddenModals.forEach(({ element, originalDisplay }) => {
+      const htmlElement = element as HTMLElement;
+      htmlElement.style.display = originalDisplay || '';
+    });
   }
 }
 
