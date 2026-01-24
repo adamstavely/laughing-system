@@ -2,14 +2,14 @@
  * Feedback Context for global state management
  */
 
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import type {
   FeedbackState,
   Annotation,
   FeedbackData,
   ToolMode,
 } from '../types';
-import { saveDraft, clearDraft } from '../utils/storage';
+import { saveDraft, clearDraft, shouldResetNPS } from '../utils/storage';
 
 interface FeedbackContextValue {
   state: FeedbackState;
@@ -18,7 +18,7 @@ interface FeedbackContextValue {
   removeAnnotation: (id: string) => void;
   updateAnnotation: (id: string, updates: Partial<Annotation>) => void;
   clearAnnotations: () => void;
-  setNPSScore: (score: number) => void;
+  setNPSScore: (score: number | null) => void;
   setFeedbackText: (text: string) => void;
   setCategory: (category: FeedbackData['category']) => void;
   setSeverity: (severity: FeedbackData['severity']) => void;
@@ -36,7 +36,7 @@ type FeedbackAction =
   | { type: 'REMOVE_ANNOTATION'; payload: string }
   | { type: 'UPDATE_ANNOTATION'; payload: { id: string; updates: Partial<Annotation> } }
   | { type: 'CLEAR_ANNOTATIONS' }
-  | { type: 'SET_NPS_SCORE'; payload: number }
+  | { type: 'SET_NPS_SCORE'; payload: number | null }
   | { type: 'SET_FEEDBACK_TEXT'; payload: string }
   | { type: 'SET_CATEGORY'; payload: FeedbackData['category'] }
   | { type: 'SET_SEVERITY'; payload: FeedbackData['severity'] }
@@ -170,6 +170,14 @@ export function FeedbackProvider({
 }) {
   const [state, dispatch] = useReducer(feedbackReducer, initialState);
 
+  // Check if NPS should be reset (90 days have passed)
+  useEffect(() => {
+    if (shouldResetNPS() && state.npsScore !== null) {
+      // Reset NPS score if 90 days have passed
+      dispatch({ type: 'SET_NPS_SCORE', payload: null });
+    }
+  }, []); // Only run on mount
+
   // Debounce draft saving
   let saveTimeout: NodeJS.Timeout;
   const saveDraftDebounced = useCallback(() => {
@@ -208,7 +216,7 @@ export function FeedbackProvider({
     dispatch({ type: 'CLEAR_ANNOTATIONS' });
   }, []);
 
-  const setNPSScore = useCallback((score: number) => {
+  const setNPSScore = useCallback((score: number | null) => {
     dispatch({ type: 'SET_NPS_SCORE', payload: score });
   }, []);
 

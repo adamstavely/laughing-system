@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFeedback } from '../../context/FeedbackContext';
 import { NPSRating } from './NPSRating';
+import { saveLastNPSSubmission, shouldResetNPS } from '../../utils/storage';
 import { AnnotationList } from './AnnotationList';
 import type { JiraConfig, ElasticConfig, FeedbackData } from '../../types';
 import { validateFeedbackData } from '../../utils/validation';
@@ -83,6 +84,14 @@ export function FeedbackModal({
   } = useFeedback();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  // Check if NPS should be reset when modal opens (90 days have passed)
+  useEffect(() => {
+    if (state.isModalOpen && enableNPS && shouldResetNPS() && state.npsScore !== null) {
+      // Reset NPS score if 90 days have passed
+      dispatch({ type: 'SET_NPS_SCORE', payload: null });
+    }
+  }, [state.isModalOpen, enableNPS, state.npsScore, dispatch]);
 
   // Focus trap and close toolbar when modal opens
   useEffect(() => {
@@ -392,6 +401,10 @@ export function FeedbackModal({
               </div>
               <NPSRating 
                 onNext={() => {
+                  // Save NPS submission timestamp when user provides a score
+                  if (state.npsScore !== null) {
+                    saveLastNPSSubmission();
+                  }
                   // Move to confirmation after NPS
                   setCurrentStep(3);
                 }} 
