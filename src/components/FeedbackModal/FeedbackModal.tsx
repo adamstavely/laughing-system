@@ -311,7 +311,7 @@ export function FeedbackModal({
           {state.currentStep === 2 && enableNPS && (
             <div>
               <div className={styles.stepHeader}>
-                <h3>How likely are you to recommend us?</h3>
+                <h3>How satisfied are you with this application?</h3>
                 <p className={styles.stepDescription}>
                   Your feedback has been submitted! This step is optional.
                 </p>

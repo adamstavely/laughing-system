@@ -43,7 +43,7 @@ const FeedbackComponentInner = memo(function FeedbackComponentInner(props: Feedb
     onAnnotationCreate,
   } = props;
 
-  const { state, addAnnotation, setToolMode, setCategory } = useFeedback();
+  const { state, addAnnotation, setToolMode, setCategory, setModalOpen } = useFeedback();
   const [quickFeedbackAnnotation, setQuickFeedbackAnnotation] = useState<Annotation | null>(null);
   const [showGeneralFeedbackModal, setShowGeneralFeedbackModal] = useState(false);
   const [pendingModal, setPendingModal] = useState<'bug' | 'feature' | 'general' | null>(null);
@@ -84,16 +84,34 @@ const FeedbackComponentInner = memo(function FeedbackComponentInner(props: Feedb
   }, [state.isAnimationPaused]);
 
   const handleGeneralFeedbackClick = () => {
+    // Close all other modals first
+    setModalOpen(false);
+    setShowBugModal(false);
+    setShowFeatureModal(false);
+    setQuickFeedbackAnnotation(null);
+    // Open the new modal
     setCategory('other');
     setShowGeneralFeedbackModal(true);
   };
 
   const handleBugReportClick = () => {
+    // Close all other modals first
+    setModalOpen(false);
+    setShowGeneralFeedbackModal(false);
+    setShowFeatureModal(false);
+    setQuickFeedbackAnnotation(null);
+    // Open the new modal
     setCategory('bug');
     setShowBugModal(true);
   };
 
   const handleFeatureRequestClick = () => {
+    // Close all other modals first
+    setModalOpen(false);
+    setShowBugModal(false);
+    setShowGeneralFeedbackModal(false);
+    setQuickFeedbackAnnotation(null);
+    // Open the new modal
     setCategory('feature');
     setShowFeatureModal(true);
   };

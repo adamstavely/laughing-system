@@ -4,7 +4,6 @@
  */
 
 import { useEffect, useRef, ReactNode } from 'react';
-import { X } from 'lucide-react';
 import sharedStyles from '../../styles/modal.shared.module.css';
 
 export interface BaseModalProps {
@@ -139,7 +138,7 @@ export function BaseModal({
             aria-label="Close modal"
             type="button"
           >
-            <X size={20} />
+            ×
           </button>
         </div>
 

@@ -32,7 +32,7 @@ export function NPSRating({ onNext, onSkip }: NPSRatingProps) {
       ) : (
         <>
           <h3 className={styles.question}>
-            How likely are you to recommend this product to a friend or colleague?
+            How satisfied are you with this application?
           </h3>
 
           <div className={styles.scale} role="radiogroup" aria-label="NPS rating scale">

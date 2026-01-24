@@ -155,7 +155,7 @@ export function Toolbar({
             ) : (
               <>
                 <p className={styles.npsQuestion}>
-                  How likely are you to recommend us?
+                  How satisfied are you with this application?
                 </p>
                 <div className={styles.npsScale} role="radiogroup" aria-label="NPS rating scale">
                   {Array.from({ length: 11 }, (_, i) => (
