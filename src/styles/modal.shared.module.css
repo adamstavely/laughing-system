@@ -75,6 +75,11 @@
 .modalHeaderIcon {
   color: var(--color-primary);
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Match the h2 line-height to ensure proper vertical alignment */
+  height: 1.2em;
 }
 
 .modalHeader h2 {
@@ -82,6 +87,9 @@
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--modal-text-primary);
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
 }
 
 .modalCloseButton {

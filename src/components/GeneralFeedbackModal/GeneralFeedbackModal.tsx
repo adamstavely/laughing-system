@@ -46,6 +46,7 @@ export function GeneralFeedbackModal({
     setToolbarExpanded,
     setToolMode,
     reset,
+    clearDraftFeedback,
   } = useFeedback();
 
   // Use shared submission hook
@@ -107,10 +108,15 @@ export function GeneralFeedbackModal({
     onAddAnnotation?.();
   };
 
+  const handleClose = () => {
+    clearDraftFeedback();
+    onClose();
+  };
+
   return (
     <BaseModal
       isOpen={true}
-      onClose={onClose}
+      onClose={handleClose}
       title="General Feedback"
       icon={<MessageSquarePlus size={20} />}
       ariaLabelledBy="general-feedback-title"
@@ -119,7 +125,7 @@ export function GeneralFeedbackModal({
           <>
             <button
               className={sharedStyles.modalButtonCancel}
-              onClick={onClose}
+              onClick={handleClose}
               type="button"
             >
               Cancel

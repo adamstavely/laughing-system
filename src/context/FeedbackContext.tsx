@@ -30,6 +30,7 @@ interface FeedbackContextValue {
   setCurrentStep: (step: number) => void;
   reset: () => void;
   resetNPS: () => void;
+  clearDraftFeedback: () => void;
 }
 
 type FeedbackAction =
@@ -48,7 +49,8 @@ type FeedbackAction =
   | { type: 'SET_TOOLBAR_EXPANDED'; payload: boolean }
   | { type: 'SET_CURRENT_STEP'; payload: number }
   | { type: 'SET_SUBMITTING'; payload: boolean }
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  | { type: 'CLEAR_DRAFT_FEEDBACK' };
 
 const initialState: FeedbackState = {
   annotations: [],
@@ -153,6 +155,17 @@ function feedbackReducer(
       };
     case 'RESET':
       return initialState;
+    case 'CLEAR_DRAFT_FEEDBACK':
+      // Clear feedback fields AND annotations
+      return {
+        ...state,
+        feedbackText: '',
+        category: undefined,
+        severity: undefined,
+        contactPreference: false,
+        npsScore: null,
+        annotations: [], // Clear annotations from state
+      };
     default:
       return state;
   }
@@ -282,6 +295,16 @@ export function FeedbackProvider({
   }, []);
 
   const reset = useCallback(() => {
+    // Cancel any pending debounced saves
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = undefined;
+    }
+    // Update lastSavedRef first to prevent auto-save from re-saving after clearing
+    lastSavedRef.current = {
+      feedbackText: '',
+      npsScore: null,
+    };
     dispatch({ type: 'RESET' });
     clearDraft();
   }, []);
@@ -289,6 +312,31 @@ export function FeedbackProvider({
   const resetNPS = useCallback(() => {
     dispatch({ type: 'SET_NPS_SCORE', payload: null });
     clearLastNPSSubmission();
+  }, []);
+
+  const clearDraftFeedback = useCallback(() => {
+    // Cancel any pending debounced saves
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = undefined;
+    }
+    // Update lastSavedRef first to prevent auto-save from re-saving after clearing
+    lastSavedRef.current = {
+      feedbackText: '',
+      npsScore: null,
+    };
+    // Clear feedback fields AND annotations from state
+    dispatch({ type: 'CLEAR_DRAFT_FEEDBACK' });
+    // Clear draft storage
+    clearDraft();
+    // Write empty draft to storage
+    saveDraft({
+      feedbackText: '',
+      npsScore: null,
+      category: undefined,
+      severity: undefined,
+      annotations: [],
+    });
   }, []);
 
   const value: FeedbackContextValue = {
@@ -310,6 +358,7 @@ export function FeedbackProvider({
     setCurrentStep,
     reset,
     resetNPS,
+    clearDraftFeedback,
   };
 
   return (

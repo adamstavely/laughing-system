@@ -46,6 +46,7 @@ export function BugReportModal({
     setToolbarExpanded,
     setToolMode,
     reset,
+    clearDraftFeedback,
   } = useFeedback();
 
   // Use shared submission hook
@@ -111,10 +112,15 @@ export function BugReportModal({
     onAddAnnotation?.();
   };
 
+  const handleClose = () => {
+    clearDraftFeedback();
+    onClose();
+  };
+
   return (
     <BaseModal
       isOpen={true}
-      onClose={onClose}
+      onClose={handleClose}
       title="Bug Report"
       icon={<Bug size={20} />}
       ariaLabelledBy="bug-report-title"
@@ -123,7 +129,7 @@ export function BugReportModal({
           <>
             <button
               className={sharedStyles.modalButtonCancel}
-              onClick={onClose}
+              onClick={handleClose}
               type="button"
             >
               Cancel

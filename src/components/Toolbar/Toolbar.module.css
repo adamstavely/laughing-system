@@ -65,8 +65,19 @@
   outline-offset: 2px;
 }
 
+.collapsedIcon {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+}
+
 .collapsedButton svg {
   color: #1a1a1a;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
 }
 
 .badge {

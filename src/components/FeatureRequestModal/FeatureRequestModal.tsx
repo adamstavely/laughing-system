@@ -45,6 +45,7 @@ export function FeatureRequestModal({
     setToolbarExpanded,
     setToolMode,
     reset,
+    clearDraftFeedback,
   } = useFeedback();
 
   // Use shared submission hook
@@ -106,10 +107,15 @@ export function FeatureRequestModal({
     onAddAnnotation?.();
   };
 
+  const handleClose = () => {
+    clearDraftFeedback();
+    onClose();
+  };
+
   return (
     <BaseModal
       isOpen={true}
-      onClose={onClose}
+      onClose={handleClose}
       title="Feature Request"
       icon={<Sparkles size={20} />}
       ariaLabelledBy="feature-request-title"
@@ -118,7 +124,7 @@ export function FeatureRequestModal({
           <>
             <button
               className={sharedStyles.modalButtonCancel}
-              onClick={onClose}
+              onClick={handleClose}
               type="button"
             >
               Cancel

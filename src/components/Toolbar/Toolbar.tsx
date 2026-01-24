@@ -65,7 +65,7 @@ export function Toolbar({
             type="button"
             title="Provide feedback"
           >
-            <MessageSquareDiff size={24} />
+            <MessageSquareDiff className={styles.collapsedIcon} />
             {annotationCount > 0 && (
               <span className={styles.badge}>{annotationCount}</span>
             )}
