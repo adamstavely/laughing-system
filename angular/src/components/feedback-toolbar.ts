@@ -1,4 +1,4 @@
-import { Component, inject, input, output, computed } from '@angular/core';
+import { Component, inject, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FeedbackStore } from '../store/feedback.store';
 import { KeyboardShortcutDirective } from '../directives/keyboard-shortcut.directive';
 import type { ToolbarPosition } from '../models/feedback.model';
@@ -6,9 +6,9 @@ import { LucideAngularModule, MessageSquareDiff, MessageSquareText, Bug, Sparkle
 
 @Component({
   selector: 'fb-toolbar',
-  standalone: true,
-  imports: [KeyboardShortcutDirective, LucideAngularModule],
-  host: { fbKeyboardShortcut: '' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideAngularModule],
+  hostDirectives: [KeyboardShortcutDirective],
   template: `
     @if (!store.isToolbarExpanded()) {
       <!-- Collapsed FAB -->

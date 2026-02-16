@@ -1,4 +1,5 @@
 import { Directive, effect, inject, input, output, OnDestroy } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { generateSelector } from '../utils/selector';
 import {
   getFullDOMPath,
@@ -11,9 +12,9 @@ import type { Annotation } from '../models/feedback.model';
 
 @Directive({
   selector: '[fbSmartSelector]',
-  standalone: true,
 })
 export class SmartSelectorDirective implements OnDestroy {
+  private readonly doc = inject(DOCUMENT);
   readonly fbSmartSelector = input.required<boolean>();
   readonly selectorPriority = input<string[]>();
   readonly annotationCreated = output<Annotation>();
@@ -42,25 +43,25 @@ export class SmartSelectorDirective implements OnDestroy {
   }
 
   private enable(): void {
-    document.addEventListener('mousedown', this.boundHandleMouseDown, true);
-    document.addEventListener('mouseup', this.boundHandleTextSelection);
-    document.body.style.cursor = 'crosshair';
+    this.doc.addEventListener('mousedown', this.boundHandleMouseDown, true);
+    this.doc.addEventListener('mouseup', this.boundHandleTextSelection);
+    this.doc.body.style.cursor = 'crosshair';
   }
 
   private disable(): void {
-    document.removeEventListener('mousedown', this.boundHandleMouseDown, true);
-    document.removeEventListener('mouseup', this.boundHandleTextSelection);
-    document.body.style.cursor = '';
+    this.doc.removeEventListener('mousedown', this.boundHandleMouseDown, true);
+    this.doc.removeEventListener('mouseup', this.boundHandleTextSelection);
+    this.doc.body.style.cursor = '';
     if (this.dragOverlay) {
       this.dragOverlay.remove();
       this.dragOverlay = null;
     }
     if (this.currentMoveHandler) {
-      document.removeEventListener('mousemove', this.currentMoveHandler);
+      this.doc.removeEventListener('mousemove', this.currentMoveHandler);
       this.currentMoveHandler = null;
     }
     if (this.currentUpHandler) {
-      document.removeEventListener('mouseup', this.currentUpHandler);
+      this.doc.removeEventListener('mouseup', this.currentUpHandler);
       this.currentUpHandler = null;
     }
   }
@@ -76,7 +77,7 @@ export class SmartSelectorDirective implements OnDestroy {
   private handleTextSelection(): void {
     if (!this.fbSmartSelector() || this.isDragging || this.mouseDownPos) return;
 
-    const selection = window.getSelection();
+    const selection = this.doc.defaultView?.getSelection() ?? null;
     if (!selection || selection.rangeCount === 0) return;
 
     const range = selection.getRangeAt(0);
@@ -111,7 +112,7 @@ export class SmartSelectorDirective implements OnDestroy {
       const computedStyles = getComprehensiveComputedStyles(element);
       const nearbyElements = getNearbyElements(element, 3);
       const rect = element.getBoundingClientRect();
-      const position = getPositionDetails(rect, window.scrollX, window.scrollY);
+      const position = getPositionDetails(rect, (this.doc.defaultView?.scrollX ?? 0), (this.doc.defaultView?.scrollY ?? 0));
 
       const annotation: Annotation = {
         id: this.generateId(),
@@ -119,8 +120,8 @@ export class SmartSelectorDirective implements OnDestroy {
         selector,
         textContent: selectedText,
         coordinates: {
-          x: minX + window.scrollX,
-          y: minY + window.scrollY,
+          x: minX + (this.doc.defaultView?.scrollX ?? 0),
+          y: minY + (this.doc.defaultView?.scrollY ?? 0),
           width: maxX - minX,
           height: maxY - minY,
         },
@@ -159,12 +160,12 @@ export class SmartSelectorDirective implements OnDestroy {
     if (target.closest('.feedback-component-container')) return;
 
     this.mouseDownPos = {
-      x: e.clientX + window.scrollX,
-      y: e.clientY + window.scrollY,
+      x: e.clientX + (this.doc.defaultView?.scrollX ?? 0),
+      y: e.clientY + (this.doc.defaultView?.scrollY ?? 0),
     };
     this.isDragging = false;
 
-    const overlay = document.createElement('div');
+    const overlay = this.doc.createElement('div');
     overlay.className = 'feedback-smart-select-overlay';
     overlay.style.position = 'absolute';
     overlay.style.pointerEvents = 'none';
@@ -172,14 +173,14 @@ export class SmartSelectorDirective implements OnDestroy {
     overlay.style.border = '2px dashed oklch(0.6 0.17 258 / 0.6)';
     overlay.style.backgroundColor = 'oklch(0.6 0.17 258 / 0.1)';
     overlay.style.borderRadius = '4px';
-    document.body.appendChild(overlay);
+    this.doc.body.appendChild(overlay);
     this.dragOverlay = overlay;
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!this.mouseDownPos) return;
 
-      const currentX = moveEvent.clientX + window.scrollX;
-      const currentY = moveEvent.clientY + window.scrollY;
+      const currentX = moveEvent.clientX + (this.doc.defaultView?.scrollX ?? 0);
+      const currentY = moveEvent.clientY + (this.doc.defaultView?.scrollY ?? 0);
       const distance = Math.sqrt(
         Math.pow(currentX - this.mouseDownPos.x, 2) +
         Math.pow(currentY - this.mouseDownPos.y, 2),
@@ -205,8 +206,8 @@ export class SmartSelectorDirective implements OnDestroy {
     const handleMouseUp = (upEvent: MouseEvent) => {
       if (!this.mouseDownPos) return;
 
-      const endX = upEvent.clientX + window.scrollX;
-      const endY = upEvent.clientY + window.scrollY;
+      const endX = upEvent.clientX + (this.doc.defaultView?.scrollX ?? 0);
+      const endY = upEvent.clientY + (this.doc.defaultView?.scrollY ?? 0);
       const distance = Math.sqrt(
         Math.pow(endX - this.mouseDownPos.x, 2) +
         Math.pow(endY - this.mouseDownPos.y, 2),
@@ -225,16 +226,16 @@ export class SmartSelectorDirective implements OnDestroy {
 
       this.mouseDownPos = null;
       this.isDragging = false;
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      this.doc.removeEventListener('mousemove', handleMouseMove);
+      this.doc.removeEventListener('mouseup', handleMouseUp);
       this.currentMoveHandler = null;
       this.currentUpHandler = null;
     };
 
     this.currentMoveHandler = handleMouseMove;
     this.currentUpHandler = handleMouseUp;
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp, { once: true });
+    this.doc.addEventListener('mousemove', handleMouseMove);
+    this.doc.addEventListener('mouseup', handleMouseUp, { once: true });
   }
 
   private createAreaAnnotation(
@@ -249,9 +250,9 @@ export class SmartSelectorDirective implements OnDestroy {
 
     if (width <= 10 || height <= 10) return;
 
-    const elementsInArea = document.elementsFromPoint(
-      left + width / 2 - window.scrollX,
-      top + height / 2 - window.scrollY,
+    const elementsInArea = this.doc.elementsFromPoint(
+      left + width / 2 - (this.doc.defaultView?.scrollX ?? 0),
+      top + height / 2 - (this.doc.defaultView?.scrollY ?? 0),
     ) as HTMLElement[];
 
     const primaryElement = elementsInArea.find(
@@ -265,7 +266,7 @@ export class SmartSelectorDirective implements OnDestroy {
       const fullDOMPath = getFullDOMPath(primaryElement);
       const computedStyles = getComprehensiveComputedStyles(primaryElement);
       const nearbyElements = getNearbyElements(primaryElement, 3);
-      const position = getPositionDetails(rect, window.scrollX, window.scrollY);
+      const position = getPositionDetails(rect, (this.doc.defaultView?.scrollX ?? 0), (this.doc.defaultView?.scrollY ?? 0));
       const context = getElementContext(primaryElement);
 
       metadata = {
@@ -308,12 +309,12 @@ export class SmartSelectorDirective implements OnDestroy {
       const fullDOMPath = getFullDOMPath(target);
       const computedStyles = getComprehensiveComputedStyles(target);
       const nearbyElements = getNearbyElements(target, 3);
-      const position = getPositionDetails(rect, window.scrollX, window.scrollY);
+      const position = getPositionDetails(rect, (this.doc.defaultView?.scrollX ?? 0), (this.doc.defaultView?.scrollY ?? 0));
       const context = getElementContext(target);
 
       const elementPath: string[] = [];
       let current: HTMLElement | null = target;
-      while (current && current !== document.body) {
+      while (current && current !== this.doc.body) {
         elementPath.unshift(current.tagName.toLowerCase());
         current = current.parentElement;
       }

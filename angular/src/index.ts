@@ -44,7 +44,6 @@ export { StorageService } from './services/storage.service';
 export { ScreenshotService } from './services/screenshot.service';
 export { ContextCaptureService } from './services/context-capture.service';
 export { AnimationPauseService } from './services/animation-pause.service';
-export { AnnotationService } from './services/annotation.service';
 export { SubmissionService } from './services/submission.service';
 
 // Utilities (pure functions for external use)

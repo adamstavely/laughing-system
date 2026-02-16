@@ -1,14 +1,17 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 const PAUSE_CLASS = 'feedback-component-pause-animations';
 const STYLE_ID = 'feedback-component-animation-pause';
 
 @Injectable()
 export class AnimationPauseService {
-  pause(): void {
-    if (document.getElementById(STYLE_ID)) return;
+  private readonly doc = inject(DOCUMENT);
 
-    const style = document.createElement('style');
+  pause(): void {
+    if (this.doc.getElementById(STYLE_ID)) return;
+
+    const style = this.doc.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
       .${PAUSE_CLASS} *,
@@ -18,13 +21,13 @@ export class AnimationPauseService {
         transition: none !important;
       }
     `;
-    document.head.appendChild(style);
-    document.documentElement.classList.add(PAUSE_CLASS);
+    this.doc.head.appendChild(style);
+    this.doc.documentElement.classList.add(PAUSE_CLASS);
   }
 
   resume(): void {
-    document.documentElement.classList.remove(PAUSE_CLASS);
-    const style = document.getElementById(STYLE_ID);
+    this.doc.documentElement.classList.remove(PAUSE_CLASS);
+    const style = this.doc.getElementById(STYLE_ID);
     if (style) {
       style.remove();
     }

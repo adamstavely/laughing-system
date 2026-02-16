@@ -1,4 +1,4 @@
-import { Component, inject, input, output, effect } from '@angular/core';
+import { Component, inject, input, output, effect, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FeedbackStore } from '../store/feedback.store';
 import { SubmissionService } from '../services/submission.service';
 import { BaseModalComponent } from './base-modal';
@@ -9,7 +9,7 @@ import { LucideAngularModule, Sparkles } from 'lucide-angular';
 
 @Component({
   selector: 'fb-feature-request-modal',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     BaseModalComponent,
     AnnotationListComponent,
@@ -75,7 +75,8 @@ import { LucideAngularModule, Sparkles } from 'lucide-angular';
         <div class="mb-4">
           <fb-controlled-textarea
             id="feature-additional-details"
-            [(value)]="feedbackTextValue"
+            [value]="feedbackTextValue()"
+            (valueChange)="feedbackTextValue.set($event)"
             label="Additional Details (optional)"
             placeholder="Describe the feature you'd like to see, use cases, benefits..."
             [rows]="4"
@@ -142,18 +143,19 @@ export class FeatureRequestModalComponent {
   readonly closed = output<void>();
   readonly addAnnotationRequested = output<void>();
 
-  protected feedbackTextValue = '';
+  protected readonly feedbackTextValue = signal('');
 
   constructor() {
     this.store.setToolbarExpanded(true);
-    this.feedbackTextValue = this.store.feedbackText();
+    this.feedbackTextValue.set(this.store.feedbackText());
 
-    effect(() => {
+    effect((onCleanup) => {
       if (this.submission.isSuccess()) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           this.store.reset();
           this.closed.emit();
         }, 2000);
+        onCleanup(() => clearTimeout(timer));
       }
     });
   }
@@ -175,7 +177,7 @@ export class FeatureRequestModalComponent {
   }
 
   protected async handleSubmit(): Promise<void> {
-    this.store.setFeedbackText(this.feedbackTextValue);
+    this.store.setFeedbackText(this.feedbackTextValue());
 
     const validationErrors: string[] = [];
     if (this.store.annotations().length === 0) {

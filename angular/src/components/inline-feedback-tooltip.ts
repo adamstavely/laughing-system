@@ -1,5 +1,6 @@
 import {
   Component,
+  inject,
   input,
   output,
   signal,
@@ -7,13 +8,15 @@ import {
   viewChild,
   ElementRef,
   OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import type { Annotation } from '../models/feedback.model';
 
 @Component({
   selector: 'fb-inline-feedback-tooltip',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   template: `
     <!-- Backdrop -->
@@ -77,6 +80,7 @@ import type { Annotation } from '../models/feedback.model';
   `,
 })
 export class InlineFeedbackTooltipComponent implements OnDestroy {
+  private readonly doc = inject(DOCUMENT);
   readonly annotation = input.required<Annotation>();
   readonly position = input.required<{ x: number; y: number }>();
   readonly closed = output<void>();
@@ -97,8 +101,9 @@ export class InlineFeedbackTooltipComponent implements OnDestroy {
 
       if (tooltip) {
         const rect = tooltip.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+        const win = this.doc.defaultView;
+        const viewportWidth = win?.innerWidth ?? 0;
+        const viewportHeight = win?.innerHeight ?? 0;
 
         let x = pos.x;
         let y = pos.y - rect.height - 10;
@@ -116,11 +121,11 @@ export class InlineFeedbackTooltipComponent implements OnDestroy {
       this.textareaEl()?.nativeElement.focus();
     });
 
-    document.addEventListener('keydown', this.keydownHandler);
+    this.doc.addEventListener('keydown', this.keydownHandler);
   }
 
   ngOnDestroy(): void {
-    document.removeEventListener('keydown', this.keydownHandler);
+    this.doc.removeEventListener('keydown', this.keydownHandler);
   }
 
   protected handleSubmit(): void {

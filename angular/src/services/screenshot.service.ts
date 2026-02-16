@@ -1,12 +1,15 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import type { Annotation, ScreenshotOptions } from '../models/feedback.model';
 
 @Injectable()
 export class ScreenshotService {
+  private readonly doc = inject(DOCUMENT);
   private html2canvasModule: any = null;
 
   async generateScreenshot(options: ScreenshotOptions = {}): Promise<string> {
     const { quality = 0.8, maxWidth = 1200, element, coordinates } = options;
+    const win = this.doc.defaultView;
 
     const html2canvas = await this.loadHtml2Canvas();
 
@@ -16,18 +19,18 @@ export class ScreenshotService {
     if (element) {
       targetElement = element;
     } else if (coordinates) {
-      targetElement = document.body;
+      targetElement = this.doc.body;
       cropArea = {
-        x: coordinates.x - window.scrollX,
-        y: coordinates.y - window.scrollY,
+        x: coordinates.x - (win?.scrollX ?? 0),
+        y: coordinates.y - (win?.scrollY ?? 0),
         width: coordinates.width,
         height: coordinates.height,
       };
     } else {
-      targetElement = document.body;
+      targetElement = this.doc.body;
     }
 
-    const modals = document.querySelectorAll(
+    const modals = this.doc.querySelectorAll(
       '[role="dialog"], .modalBackdrop, .backdrop, [class*="modal"], [class*="Modal"]',
     );
     const hiddenModals: Array<{ element: Element; originalDisplay: string }> = [];
@@ -44,8 +47,8 @@ export class ScreenshotService {
         useCORS: true,
         logging: false,
         scale: 1,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
+        windowWidth: win?.innerWidth ?? 0,
+        windowHeight: win?.innerHeight ?? 0,
         ignoreElements: (el: Element) => {
           return (
             el.closest('[role="dialog"]') !== null ||
@@ -61,7 +64,7 @@ export class ScreenshotService {
 
       let finalCanvas = canvas;
       if (cropArea) {
-        const croppedCanvas = document.createElement('canvas');
+        const croppedCanvas = this.doc.createElement('canvas');
         croppedCanvas.width = cropArea.width;
         croppedCanvas.height = cropArea.height;
         const ctx = croppedCanvas.getContext('2d');
@@ -83,7 +86,7 @@ export class ScreenshotService {
 
       if (finalCanvas.width > maxWidth) {
         const ratio = maxWidth / finalCanvas.width;
-        const resizedCanvas = document.createElement('canvas');
+        const resizedCanvas = this.doc.createElement('canvas');
         resizedCanvas.width = maxWidth;
         resizedCanvas.height = finalCanvas.height * ratio;
         const ctx = resizedCanvas.getContext('2d');
@@ -113,7 +116,7 @@ export class ScreenshotService {
 
     if (annotation.type === 'element' && annotation.selector) {
       try {
-        const element = document.querySelector(annotation.selector) as HTMLElement;
+        const element = this.doc.querySelector(annotation.selector) as HTMLElement;
         if (element) {
           return this.generateScreenshot({ element, quality, maxWidth });
         }

@@ -1,23 +1,17 @@
-import { Component, input, model, signal, effect, OnDestroy } from '@angular/core';
+import { Component, input, model, signal, effect, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'fb-controlled-textarea',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   template: `
-    @if (label()) {
-      <div class="space-y-2">
+    <div [class]="label() ? 'space-y-2' : ''">
+      @if (label()) {
         <label class="text-sm font-medium text-foreground" [attr.for]="id()">
           {{ label() }}
         </label>
-        <ng-container *ngTemplateOutlet="textareaContent" />
-      </div>
-    } @else {
-      <ng-container *ngTemplateOutlet="textareaContent" />
-    }
-
-    <ng-template #textareaContent>
+      }
       <textarea
         class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         [id]="id()"
@@ -34,7 +28,7 @@ import { FormsModule } from '@angular/forms';
           {{ remaining() }} characters remaining
         </div>
       }
-    </ng-template>
+    </div>
   `,
 })
 export class ControlledTextareaComponent implements OnDestroy {

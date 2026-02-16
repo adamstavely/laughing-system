@@ -10,24 +10,38 @@ export class FeedbackStore {
   private saveTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private debounceMs = 500;
 
-  // Core state signals
-  readonly annotations = signal<Annotation[]>([]);
-  readonly npsScore = signal<number | null>(null);
-  readonly feedbackText = signal<string>('');
-  readonly category = signal<FeedbackData['category']>(undefined);
-  readonly severity = signal<FeedbackData['severity']>(undefined);
-  readonly contactPreference = signal<boolean>(false);
-  readonly isSubmitting = signal<boolean>(false);
-  readonly currentStep = signal<number>(1);
-  readonly toolMode = signal<ToolMode>('none');
-  readonly isAnimationPaused = signal<boolean>(false);
-  readonly isModalOpen = signal<boolean>(false);
-  readonly isToolbarExpanded = signal<boolean>(false);
+  // Private writable state signals
+  private readonly _annotations = signal<Annotation[]>([]);
+  private readonly _npsScore = signal<number | null>(null);
+  private readonly _feedbackText = signal<string>('');
+  private readonly _category = signal<FeedbackData['category']>(undefined);
+  private readonly _severity = signal<FeedbackData['severity']>(undefined);
+  private readonly _contactPreference = signal<boolean>(false);
+  private readonly _isSubmitting = signal<boolean>(false);
+  private readonly _currentStep = signal<number>(1);
+  private readonly _toolMode = signal<ToolMode>('none');
+  private readonly _isAnimationPaused = signal<boolean>(false);
+  private readonly _isModalOpen = signal<boolean>(false);
+  private readonly _isToolbarExpanded = signal<boolean>(false);
+
+  // Public readonly signals
+  readonly annotations = this._annotations.asReadonly();
+  readonly npsScore = this._npsScore.asReadonly();
+  readonly feedbackText = this._feedbackText.asReadonly();
+  readonly category = this._category.asReadonly();
+  readonly severity = this._severity.asReadonly();
+  readonly contactPreference = this._contactPreference.asReadonly();
+  readonly isSubmitting = this._isSubmitting.asReadonly();
+  readonly currentStep = this._currentStep.asReadonly();
+  readonly toolMode = this._toolMode.asReadonly();
+  readonly isAnimationPaused = this._isAnimationPaused.asReadonly();
+  readonly isModalOpen = this._isModalOpen.asReadonly();
+  readonly isToolbarExpanded = this._isToolbarExpanded.asReadonly();
 
   // Computed signals
-  readonly annotationCount = computed(() => this.annotations().length);
-  readonly hasAnnotations = computed(() => this.annotations().length > 0);
-  readonly npsSegment = computed(() => calculateNPSSegment(this.npsScore()));
+  readonly annotationCount = computed(() => this._annotations().length);
+  readonly hasAnnotations = computed(() => this._annotations().length > 0);
+  readonly npsSegment = computed(() => calculateNPSSegment(this._npsScore()));
 
   constructor() {
     this.checkNPSReset();
@@ -41,66 +55,66 @@ export class FeedbackStore {
 
   // Annotation mutations
   addAnnotation(annotation: Annotation): void {
-    this.annotations.update((list) => [...list, annotation]);
+    this._annotations.update((list) => [...list, annotation]);
   }
 
   removeAnnotation(id: string): void {
-    this.annotations.update((list) => list.filter((a) => a.id !== id));
+    this._annotations.update((list) => list.filter((a) => a.id !== id));
   }
 
   updateAnnotation(id: string, updates: Partial<Annotation>): void {
-    this.annotations.update((list) =>
+    this._annotations.update((list) =>
       list.map((a) => (a.id === id ? { ...a, ...updates } : a)),
     );
   }
 
   clearAnnotations(): void {
-    this.annotations.set([]);
+    this._annotations.set([]);
   }
 
   // Simple setters
   setNPSScore(score: number | null): void {
-    this.npsScore.set(score);
+    this._npsScore.set(score);
   }
 
   setFeedbackText(text: string): void {
-    this.feedbackText.set(text);
+    this._feedbackText.set(text);
   }
 
   setCategory(category: FeedbackData['category']): void {
-    this.category.set(category);
+    this._category.set(category);
   }
 
   setSeverity(severity: FeedbackData['severity']): void {
-    this.severity.set(severity);
+    this._severity.set(severity);
   }
 
   setContactPreference(preference: boolean): void {
-    this.contactPreference.set(preference);
+    this._contactPreference.set(preference);
   }
 
   setSubmitting(submitting: boolean): void {
-    this.isSubmitting.set(submitting);
+    this._isSubmitting.set(submitting);
   }
 
   setCurrentStep(step: number): void {
-    this.currentStep.set(step);
+    this._currentStep.set(step);
   }
 
   setToolMode(mode: ToolMode): void {
-    this.toolMode.set(mode);
+    this._toolMode.set(mode);
   }
 
   setAnimationPaused(paused: boolean): void {
-    this.isAnimationPaused.set(paused);
+    this._isAnimationPaused.set(paused);
   }
 
   setModalOpen(open: boolean): void {
-    this.isModalOpen.set(open);
+    this._isModalOpen.set(open);
   }
 
   setToolbarExpanded(expanded: boolean): void {
-    this.isToolbarExpanded.set(expanded);
+    this._isToolbarExpanded.set(expanded);
   }
 
   // Lifecycle actions
@@ -109,18 +123,18 @@ export class FeedbackStore {
       clearTimeout(this.saveTimeoutId);
       this.saveTimeoutId = null;
     }
-    this.annotations.set([]);
-    this.npsScore.set(null);
-    this.feedbackText.set('');
-    this.category.set(undefined);
-    this.severity.set(undefined);
-    this.contactPreference.set(false);
-    this.isSubmitting.set(false);
-    this.currentStep.set(1);
-    this.toolMode.set('none');
-    this.isAnimationPaused.set(false);
-    this.isModalOpen.set(false);
-    this.isToolbarExpanded.set(false);
+    this._annotations.set([]);
+    this._npsScore.set(null);
+    this._feedbackText.set('');
+    this._category.set(undefined);
+    this._severity.set(undefined);
+    this._contactPreference.set(false);
+    this._isSubmitting.set(false);
+    this._currentStep.set(1);
+    this._toolMode.set('none');
+    this._isAnimationPaused.set(false);
+    this._isModalOpen.set(false);
+    this._isToolbarExpanded.set(false);
     this.storage.clearDraft();
   }
 
@@ -129,12 +143,12 @@ export class FeedbackStore {
       clearTimeout(this.saveTimeoutId);
       this.saveTimeoutId = null;
     }
-    this.feedbackText.set('');
-    this.category.set(undefined);
-    this.severity.set(undefined);
-    this.contactPreference.set(false);
-    this.npsScore.set(null);
-    this.annotations.set([]);
+    this._feedbackText.set('');
+    this._category.set(undefined);
+    this._severity.set(undefined);
+    this._contactPreference.set(false);
+    this._npsScore.set(null);
+    this._annotations.set([]);
     this.storage.clearDraft();
     this.storage.saveDraft({
       feedbackText: '',
@@ -146,35 +160,35 @@ export class FeedbackStore {
   }
 
   resetNPS(): void {
-    this.npsScore.set(null);
+    this._npsScore.set(null);
     this.storage.clearLastNPSSubmission();
   }
 
   private checkNPSReset(): void {
-    if (this.storage.shouldResetNPS() && this.npsScore() !== null) {
-      this.npsScore.set(null);
+    if (this.storage.shouldResetNPS() && this._npsScore() !== null) {
+      this._npsScore.set(null);
     }
   }
 
   private loadDraft(): void {
     const draft = this.storage.loadDraft();
-    if (draft.feedbackText) this.feedbackText.set(draft.feedbackText);
-    if (draft.npsScore !== undefined && draft.npsScore !== null) this.npsScore.set(draft.npsScore);
-    if (draft.category) this.category.set(draft.category as FeedbackData['category']);
-    if (draft.severity) this.severity.set(draft.severity as FeedbackData['severity']);
+    if (draft.feedbackText) this._feedbackText.set(draft.feedbackText);
+    if (draft.npsScore !== undefined && draft.npsScore !== null) this._npsScore.set(draft.npsScore);
+    if (draft.category) this._category.set(draft.category as FeedbackData['category']);
+    if (draft.severity) this._severity.set(draft.severity as FeedbackData['severity']);
     if (draft.annotations && draft.annotations.length > 0) {
-      this.annotations.set(draft.annotations as Annotation[]);
+      this._annotations.set(draft.annotations as Annotation[]);
     }
   }
 
   private setupDraftPersistence(): void {
     effect(
-      () => {
-        const text = this.feedbackText();
-        const score = this.npsScore();
-        const cat = this.category();
-        const sev = this.severity();
-        const anns = this.annotations();
+      (onCleanup) => {
+        const text = this._feedbackText();
+        const score = this._npsScore();
+        const cat = this._category();
+        const sev = this._severity();
+        const anns = this._annotations();
 
         if (this.saveTimeoutId) clearTimeout(this.saveTimeoutId);
 
@@ -189,6 +203,12 @@ export class FeedbackStore {
             });
           }
         }, this.debounceMs);
+
+        onCleanup(() => {
+          if (this.saveTimeoutId) {
+            clearTimeout(this.saveTimeoutId);
+          }
+        });
       },
       { injector: this.injector },
     );
