@@ -1,10 +1,10 @@
-import { Component, input, output, signal, effect, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, input, output, signal, effect, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { FeedbackStore } from '../store/feedback.store';
 import { StorageService } from '../services/storage.service';
 import { ScreenshotService } from '../services/screenshot.service';
 import { ContextCaptureService } from '../services/context-capture.service';
 import { AnimationPauseService } from '../services/animation-pause.service';
-import { AnnotationService } from '../services/annotation.service';
 import { SubmissionService } from '../services/submission.service';
 import { FeedbackToolbarComponent } from './feedback-toolbar';
 import { FeedbackModalComponent } from './feedback-modal';
@@ -24,7 +24,7 @@ import type {
 
 @Component({
   selector: 'fb-feedback-root',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FeedbackToolbarComponent,
     FeedbackModalComponent,
@@ -41,7 +41,6 @@ import type {
     ScreenshotService,
     ContextCaptureService,
     AnimationPauseService,
-    AnnotationService,
     SubmissionService,
   ],
   template: `
@@ -136,7 +135,8 @@ import type {
     </fb-error-fallback>
   `,
 })
-export class FeedbackRootComponent implements OnInit, OnDestroy {
+export class FeedbackRootComponent implements OnInit {
+  private readonly doc = inject(DOCUMENT);
   protected readonly store = inject(FeedbackStore);
   private readonly animationPause = inject(AnimationPauseService);
   private readonly storage = inject(StorageService);
@@ -186,15 +186,15 @@ export class FeedbackRootComponent implements OnInit, OnDestroy {
     // Theme effect
     effect(() => {
       const t = this.theme();
-      document.documentElement.setAttribute('data-theme', t);
+      this.doc.documentElement.setAttribute('data-theme', t);
     });
 
     // Accent color effect
     effect(() => {
       const color = this.accentColor();
       if (color) {
-        document.documentElement.style.setProperty('--feedback-accent', color);
-        document.documentElement.style.setProperty('--feedback-primary', color);
+        this.doc.documentElement.style.setProperty('--feedback-accent', color);
+        this.doc.documentElement.style.setProperty('--feedback-primary', color);
       }
     });
 
@@ -214,11 +214,6 @@ export class FeedbackRootComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Expose resetNPS to window for console access
-    if (typeof window !== 'undefined') {
-      (window as any).resetNPS = () => this.storage.resetNPSContext();
-    }
-
     // Validate config
     const validation = validateConfig({
       screenshotQuality: this.screenshotQuality(),
@@ -239,12 +234,6 @@ export class FeedbackRootComponent implements OnInit, OnDestroy {
 
     if (validation.warnings && validation.warnings.length > 0) {
       console.warn('FeedbackComponent configuration warnings:', validation.warnings);
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (typeof window !== 'undefined') {
-      delete (window as any).resetNPS;
     }
   }
 

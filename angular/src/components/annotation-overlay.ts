@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { FeedbackStore } from '../store/feedback.store';
 import { SmartSelectorDirective } from '../directives/smart-selector.directive';
 import { ElementHighlightComponent } from './element-highlight';
@@ -8,7 +8,7 @@ import type { ToolMode, Annotation } from '../models/feedback.model';
 
 @Component({
   selector: 'fb-annotation-overlay',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     SmartSelectorDirective,
     ElementHighlightComponent,

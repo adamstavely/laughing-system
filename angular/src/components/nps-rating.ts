@@ -1,10 +1,10 @@
-import { Component, inject, output, computed } from '@angular/core';
+import { Component, inject, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FeedbackStore } from '../store/feedback.store';
 import { calculateNPSSegment } from '../utils/validation';
 
 @Component({
   selector: 'fb-nps-rating',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="space-y-4">
       @if (store.npsScore() !== null) {
@@ -53,7 +53,7 @@ import { calculateNPSSegment } from '../utils/validation';
       }
 
       <div class="mt-4 flex items-center justify-end gap-2">
-        @if (skipEnabled) {
+        @if (skipEnabled()) {
           <button
             class="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             (click)="skip.emit()"
@@ -79,7 +79,7 @@ export class NpsRatingComponent {
   protected readonly store = inject(FeedbackStore);
   readonly next = output<void>();
   readonly skip = output<void>();
-  readonly skipEnabled = true;
+  readonly skipEnabled = input(true);
 
   protected readonly npsRange = Array.from({ length: 11 }, (_, i) => i);
   protected readonly segment = computed(() => calculateNPSSegment(this.store.npsScore()));

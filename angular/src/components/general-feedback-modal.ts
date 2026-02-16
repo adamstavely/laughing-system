@@ -1,4 +1,4 @@
-import { Component, inject, input, output, effect } from '@angular/core';
+import { Component, inject, input, output, effect, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FeedbackStore } from '../store/feedback.store';
 import { SubmissionService } from '../services/submission.service';
 import { BaseModalComponent } from './base-modal';
@@ -9,7 +9,7 @@ import { LucideAngularModule, MessageSquarePlus } from 'lucide-angular';
 
 @Component({
   selector: 'fb-general-feedback-modal',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     BaseModalComponent,
     AnnotationListComponent,
@@ -92,7 +92,8 @@ import { LucideAngularModule, MessageSquarePlus } from 'lucide-angular';
         <div class="mb-4">
           <fb-controlled-textarea
             id="general-feedback-text"
-            [(value)]="feedbackTextValue"
+            [value]="feedbackTextValue()"
+            (valueChange)="feedbackTextValue.set($event)"
             label="Your Feedback *"
             placeholder="Share your thoughts, questions, or feedback..."
             [rows]="6"
@@ -139,7 +140,7 @@ import { LucideAngularModule, MessageSquarePlus } from 'lucide-angular';
             class="inline-flex items-center justify-center rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             (click)="handleSubmit()"
             type="button"
-            [disabled]="submission.isSubmitting() || !feedbackTextValue || feedbackTextValue.trim().length < 10"
+            [disabled]="submission.isSubmitting() || !feedbackTextValue() || feedbackTextValue().trim().length < 10"
           >
             {{ submission.isSubmitting() ? 'Submitting...' : 'Submit Feedback' }}
           </button>
@@ -162,18 +163,19 @@ export class GeneralFeedbackModalComponent {
   readonly addAnnotationRequested = output<void>();
 
   protected readonly categories = ['question', 'praise', 'other'] as const;
-  protected feedbackTextValue = '';
+  protected readonly feedbackTextValue = signal('');
 
   constructor() {
     this.store.setToolbarExpanded(true);
-    this.feedbackTextValue = this.store.feedbackText();
+    this.feedbackTextValue.set(this.store.feedbackText());
 
-    effect(() => {
+    effect((onCleanup) => {
       if (this.submission.isSuccess()) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           this.store.reset();
           this.closed.emit();
         }, 2000);
+        onCleanup(() => clearTimeout(timer));
       }
     });
   }
@@ -199,10 +201,10 @@ export class GeneralFeedbackModalComponent {
   }
 
   protected async handleSubmit(): Promise<void> {
-    this.store.setFeedbackText(this.feedbackTextValue);
+    this.store.setFeedbackText(this.feedbackTextValue());
 
     const validationErrors: string[] = [];
-    if (!this.feedbackTextValue || this.feedbackTextValue.trim().length < 10) {
+    if (!this.feedbackTextValue() || this.feedbackTextValue().trim().length < 10) {
       validationErrors.push('Please provide feedback (at least 10 characters)');
     }
 

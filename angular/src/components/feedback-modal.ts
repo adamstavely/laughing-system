@@ -1,4 +1,4 @@
-import { Component, inject, input, output, effect, computed } from '@angular/core';
+import { Component, inject, input, output, effect, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FeedbackStore } from '../store/feedback.store';
 import { SubmissionService } from '../services/submission.service';
 import { StorageService } from '../services/storage.service';
@@ -12,7 +12,7 @@ const TOTAL_STEPS = 3;
 
 @Component({
   selector: 'fb-feedback-modal',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     BaseModalComponent,
     AnnotationListComponent,

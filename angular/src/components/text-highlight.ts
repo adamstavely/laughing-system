@@ -1,10 +1,10 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { TruncatePipe } from '../pipes/truncate.pipe';
 import type { Annotation } from '../models/feedback.model';
 
 @Component({
   selector: 'fb-text-highlight',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TruncatePipe],
   template: `
     <div

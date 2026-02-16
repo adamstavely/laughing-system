@@ -1,4 +1,5 @@
-import { Component, ErrorHandler, Injectable, signal, inject } from '@angular/core';
+import { Component, ErrorHandler, Injectable, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Injectable()
 export class FeedbackErrorHandler extends ErrorHandler {
@@ -14,7 +15,7 @@ export class FeedbackErrorHandler extends ErrorHandler {
 
 @Component({
   selector: 'fb-error-fallback',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     FeedbackErrorHandler,
     { provide: ErrorHandler, useExisting: FeedbackErrorHandler },
@@ -35,6 +36,7 @@ export class FeedbackErrorHandler extends ErrorHandler {
         <button
           class="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           (click)="reload()"
+          type="button"
         >
           Reload Page
         </button>
@@ -45,9 +47,10 @@ export class FeedbackErrorHandler extends ErrorHandler {
   `,
 })
 export class ErrorFallbackComponent {
+  private readonly doc = inject(DOCUMENT);
   protected readonly errorHandler = inject(FeedbackErrorHandler);
 
   reload(): void {
-    window.location.reload();
+    this.doc.defaultView?.location.reload();
   }
 }

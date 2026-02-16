@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { FeedbackStore } from '../store/feedback.store';
 import type { FeedbackData } from '../models/feedback.model';
 import { LucideAngularModule, Bug, Sparkles, HelpCircle, Heart, MessageSquare } from 'lucide-angular';
@@ -26,7 +26,7 @@ const severities: Array<{ value: FeedbackData['severity']; label: string }> = [
 
 @Component({
   selector: 'fb-category-selector',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LucideAngularModule],
   template: `
     <div class="space-y-4">

@@ -1,21 +1,25 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import type { ContextData } from '../models/feedback.model';
 
 const SESSION_ID_KEY = 'feedback-component-session-id';
 
 @Injectable()
 export class ContextCaptureService {
+  private readonly doc = inject(DOCUMENT);
+
   captureContext(
     getUserId?: () => string | null,
     appVersion?: string,
     customContext?: Record<string, unknown>,
   ): ContextData {
+    const win = this.doc.defaultView;
     return {
-      url: window.location.href,
+      url: win?.location.href ?? '',
       userAgent: this.parseUserAgent(),
       viewport: {
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: win?.innerWidth ?? 0,
+        height: win?.innerHeight ?? 0,
       },
       userId: getUserId?.() || undefined,
       sessionId: this.getSessionId(),
@@ -29,18 +33,19 @@ export class ContextCaptureService {
   }
 
   private getSessionId(): string {
-    let sessionId = sessionStorage.getItem(SESSION_ID_KEY);
+    const win = this.doc.defaultView;
+    let sessionId = win?.sessionStorage.getItem(SESSION_ID_KEY) ?? null;
 
     if (!sessionId) {
       sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      sessionStorage.setItem(SESSION_ID_KEY, sessionId);
+      win?.sessionStorage.setItem(SESSION_ID_KEY, sessionId);
     }
 
     return sessionId;
   }
 
   private parseUserAgent(): string {
-    const ua = navigator.userAgent;
+    const ua = this.doc.defaultView?.navigator.userAgent ?? '';
 
     if (ua.includes('Chrome')) {
       const match = ua.match(/Chrome\/(\d+)/);

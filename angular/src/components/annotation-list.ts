@@ -1,11 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FeedbackStore } from '../store/feedback.store';
 import { TruncatePipe } from '../pipes/truncate.pipe';
 
 @Component({
   selector: 'fb-annotation-list',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, TruncatePipe],
   template: `
     @if (store.annotations().length === 0) {

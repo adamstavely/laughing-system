@@ -1,10 +1,10 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { BrnDialogImports } from '@spartan-ng/brain/dialog';
 import { HlmDialogImports } from '@spartan-ng/ui-dialog-helm';
 
 @Component({
   selector: 'fb-base-modal',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BrnDialogImports, HlmDialogImports],
   template: `
     <brn-dialog

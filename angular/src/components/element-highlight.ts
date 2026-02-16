@@ -1,9 +1,10 @@
-import { Component, input, signal, effect } from '@angular/core';
+import { Component, inject, input, signal, effect, ChangeDetectionStrategy } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import type { Annotation } from '../models/feedback.model';
 
 @Component({
   selector: 'fb-element-highlight',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (position()) {
       <div
@@ -26,6 +27,7 @@ import type { Annotation } from '../models/feedback.model';
   `,
 })
 export class ElementHighlightComponent {
+  private readonly doc = inject(DOCUMENT);
   readonly annotation = input.required<Annotation>();
   readonly index = input.required<number>();
 
@@ -42,12 +44,13 @@ export class ElementHighlightComponent {
       if (!ann.selector) return;
 
       try {
-        const element = document.querySelector(ann.selector);
+        const element = this.doc.querySelector(ann.selector);
         if (element) {
           const rect = element.getBoundingClientRect();
+          const win = this.doc.defaultView;
           this.position.set({
-            x: rect.x + window.scrollX,
-            y: rect.y + window.scrollY,
+            x: rect.x + (win?.scrollX ?? 0),
+            y: rect.y + (win?.scrollY ?? 0),
             width: rect.width,
             height: rect.height,
           });
